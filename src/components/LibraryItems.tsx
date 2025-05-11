@@ -1,71 +1,94 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, FlatList, TouchableOpacity, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+    View,
+    Text,
+    FlatList,
+    StyleSheet,
+    TouchableOpacity,
+    Image
+} from 'react-native';
+import {getRecentPlaylists} from '../services/api';
 
-const libraryTabs = ['Playlists', 'Podcasts', 'Albums', 'Artists', 'Stations'];
-const recents = [
-    { id: '1', title: 'Músicas Curtidas', subtitle: 'Playlist • 27 músicas', icon: 'https://via.placeholder.com/50' },
-    { id: '2', title: 'Novos episódios', subtitle: 'Atualizado em 23 de abr. de 2025', icon: 'https://via.placeholder.com/50' },
-    { id: '3', title: 'Seus episódios', subtitle: 'Episódios salvos e baixados', icon: 'https://via.placeholder.com/50' },
-    { id: '4', title: 'Kr4wl1n6 xx24', subtitle: 'Playlist • Eduardo Porto de Araujo', icon: 'https://via.placeholder.com/50' },
-    { id: '5', title: 'Viagem Rio', subtitle: 'Playlist • Vinicius M Santos', icon: 'https://via.placeholder.com/50' },
-    { id: '6', title: 'One More Time', subtitle: 'Playlist • Eduardo Porto de Araujo', icon: 'https://via.placeholder.com/50' },
-];
+type Playlist = {
+    id: string;
+    title: string;
+    subtitle: string;
+    icon: string;
+};
 
 export default function LibraryItems() {
-    const [activeTab, setActiveTab] = React.useState(libraryTabs[0]);
+    const [recents, setRecents] = useState<Playlist[]>([]);
+
+    useEffect(() => {
+        getRecentPlaylists().then(response => {
+            setRecents(response);
+        });
+
+    }, []);
 
     return (
-        <ScrollView style={libraryStyles.container}>
-            {/* Tabs */}
-            <View style={libraryStyles.tabsContainer}>
-                {libraryTabs.map(tab => (
-                    <TouchableOpacity
-                        key={tab}
-                        style={[libraryStyles.tab, activeTab === tab && libraryStyles.activeTab]}
-                        onPress={() => setActiveTab(tab)}
-                    >
-                        <Text style={[libraryStyles.tabText, activeTab === tab && libraryStyles.activeTabText]}>{tab}</Text>
-                    </TouchableOpacity>
-                ))}
-            </View>
-
-            {/* Recents Section */}
-            <View style={libraryStyles.recentsHeader}>
-                <Text style={libraryStyles.recentsText}>Recents</Text>
-                <TouchableOpacity>
-                    <Text style={libraryStyles.gridIcon}>☷</Text>
-                </TouchableOpacity>
-            </View>
-            <FlatList
-                data={recents}
-                keyExtractor={item => item.id}
-                renderItem={({ item }) => (
-                    <View style={libraryStyles.itemRow}>
-                        <Image source={{ uri: item.icon }} style={libraryStyles.itemIcon} />
-                        <View style={libraryStyles.itemTextContainer}>
-                            <Text style={libraryStyles.itemTitle}>{item.title}</Text>
-                            <Text style={libraryStyles.itemSubtitle}>{item.subtitle}</Text>
-                        </View>
+        <FlatList
+            data={recents}
+            keyExtractor={(item) => item.id}
+            ListHeaderComponent={
+                <View style={styles.header}>
+                    <Text style={styles.headerText}>Recents</Text>
+                    {/* grid icon would go here */}
+                </View>
+            }
+            renderItem={({ item }) => (
+                <TouchableOpacity style={styles.item}>
+                    <Image source={{ uri: item.icon }} style={styles.icon} />
+                    <View style={styles.info}>
+                        <Text style={styles.title}>{item.title}</Text>
+                        <Text style={styles.subtitle}>{item.subtitle}</Text>
                     </View>
-                )}
-            />
-        </ScrollView>
+                </TouchableOpacity>
+            )}
+            contentContainerStyle={styles.listContent}
+            showsVerticalScrollIndicator={false}
+        />
     );
 }
 
-const libraryStyles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#121212' },
-    tabsContainer: { flexDirection: 'row', paddingVertical: 12, paddingHorizontal: 8 },
-    tab: { paddingHorizontal: 12, paddingVertical: 6, backgroundColor: '#333', borderRadius: 16, marginRight: 8 },
-    activeTab: { backgroundColor: '#1DB954' },
-    tabText: { color: '#fff', fontSize: 14 },
-    activeTabText: { color: '#000', fontWeight: 'bold' },
-    recentsHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, marginTop: 16 },
-    recentsText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-    gridIcon: { color: '#fff', fontSize: 20 },
-    itemRow: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#333' },
-    itemIcon: { width: 50, height: 50, borderRadius: 4, marginRight: 12 },
-    itemTextContainer: { flex: 1 },
-    itemTitle: { color: '#fff', fontSize: 16 },
-    itemSubtitle: { color: '#888', fontSize: 12, marginTop: 4 },
+const styles = StyleSheet.create({
+    listContent: {
+        paddingHorizontal: 16,
+        paddingBottom: 80, // leave space for player bar
+    },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 12,
+    },
+    headerText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+        flex: 1,
+    },
+    item: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    icon: {
+        width: 48,
+        height: 48,
+        borderRadius: 4,
+        backgroundColor: '#333',
+        marginRight: 12,
+    },
+    info: {
+        flex: 1,
+    },
+    title: {
+        color: '#fff',
+        fontSize: 14,
+        marginBottom: 4,
+    },
+    subtitle: {
+        color: '#aaa',
+        fontSize: 12,
+    },
 });

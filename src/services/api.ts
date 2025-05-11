@@ -14,12 +14,24 @@ export async function getRecentTracks() {
         api.get(`/tracks/${i + 1}`).then(res => ({
             id: res.data.id,
             name: res.data.title,
+            artist: res.data.artist,
             image: '',
             duration: res.data.duration,
-            artist: undefined
+            audio_url: res.data.audio_url,
         }))
     );
     return Promise.all(requests);
+}
+
+// Get recent playlists for Library screen
+export async function getRecentPlaylists() {
+    const res = await api.get<{
+        id: string;
+        title: string;
+        subtitle: string;
+        icon: string;
+    }[]>('/library/recent-playlists');
+    return res.data;
 }
 
 // Mock top artists based on recent tracks
@@ -37,3 +49,5 @@ export async function getUserPlaylists() {
         { id: 'playlist-3', name: 'Workout' },
     ];
 }
+
+export default api;
