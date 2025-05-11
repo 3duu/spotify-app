@@ -1,20 +1,17 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet } from 'react-native';
 
 type HeaderProps = {
-    sidebarState: () => void;
+    sectionTitle: string;
+    userImage: string;
+    //sidebarState: () => void;
 };
 
-export default function Header({ sidebarState }: HeaderProps) {
+export default function Header({ sectionTitle, userImage/*, sidebarState*/ } : Readonly<HeaderProps>) {
     return (
         <View style={styles.container}>
-            {/* Your logo/title */}
-            <Text style={styles.title}>Library</Text>
-
-            {/* Button to open/close sidebar */}
-            <TouchableOpacity onPress={sidebarState} style={styles.toggle}>
-                <Text style={styles.toggleText}>☰</Text>
-            </TouchableOpacity>
+            <Image source={{ uri: userImage }} style={styles.avatar} />
+            <Text style={styles.title}>{sectionTitle}</Text>
         </View>
     );
 }
@@ -24,20 +21,18 @@ const styles = StyleSheet.create({
         height: 60,
         backgroundColor: '#000',
         paddingHorizontal: 16,
-        alignItems: 'center',
         flexDirection: 'row',
-        justifyContent: 'space-between'
+        alignItems: 'center',
+    },
+    avatar: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        marginRight: 12,
     },
     title: {
         color: '#fff',
         fontSize: 20,
-        fontWeight: 'bold'
+        fontWeight: 'bold',
     },
-    toggle: {
-        padding: 8
-    },
-    toggleText: {
-        color: '#1DB954',
-        fontSize: 24
-    }
 });

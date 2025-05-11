@@ -1,45 +1,36 @@
-import React, { ReactNode, useState, useCallback } from 'react';
+import React, { ReactNode } from 'react';
 import { View, StyleSheet } from 'react-native';
-import Sidebar from './Sidebar';
 import Header from './Header';
 import Player from './Player';
+import { JSX } from 'react/jsx-runtime';
+import store from "../store";
+import {Provider} from "react-redux";
 
 interface BodyProps {
     children: ReactNode;
+    sectionTitle: string;
+    userImage: string;
 }
 
-const SIDEBAR_WIDTH = 230;
+const TAB_BAR_HEIGHT = 56;
+const PLAYER_HEIGHT = 80;
 
-export default function Body({ children }: Readonly<BodyProps>) {
-    const [showSidebar, setShowSidebar] = useState(false);
-    const toggleSidebar = useCallback(() => setShowSidebar(v => !v), []);
-
+export default function Body({ children, sectionTitle, userImage }: BodyProps): JSX.Element {
     return (
-        <View style={styles.container}>
-            {/* Sidebar */}
-            <View style={[
-                styles.sidebar,
-                showSidebar ? styles.sidebarOpen : styles.sidebarClosed
-            ]}>
-                <Sidebar sidebarState={toggleSidebar} />
-            </View>
+        <Provider store={store}>
+            <View style={styles.container}>
+                {/* Header */}
+                <Header sectionTitle={sectionTitle} userImage={userImage} />
 
-            {/* Main content area */}
-            <View style={[
-                styles.main,
-                showSidebar && styles.mainShift
-            ]}>
-                <Header sidebarState={toggleSidebar} />
-                <View style={styles.content}>
-                    {children}
+                {/* Main content */}
+                <View style={styles.content}>{children}</View>
+
+                {/* Footer / Player bar */}
+                <View style={styles.footer}>
+                    <Player />
                 </View>
             </View>
-
-            {/* Footer / Player bar */}
-            <View style={styles.footer}>
-                <Player />
-            </View>
-        </View>
+        </Provider>
     );
 }
 
@@ -47,39 +38,22 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#121212',
-        flexDirection: 'row',
-    },
-    sidebar: {
-        position: 'absolute',
-        top: 0,
-        bottom: 0,
-        width: SIDEBAR_WIDTH,
-        backgroundColor: '#000',
-        zIndex: 2,
-    },
-    sidebarOpen: {
-        left: 0,
-    },
-    sidebarClosed: {
-        left: -SIDEBAR_WIDTH,
-    },
-    main: {
-        flex: 1,
-        marginLeft: 0,
-    },
-    mainShift: {
-        marginLeft: SIDEBAR_WIDTH,
+        position: 'relative',
     },
     content: {
         flex: 1,
-        backgroundColor: '#121212',
+        paddingHorizontal: 16,
+        paddingTop: 8,
+        paddingBottom: PLAYER_HEIGHT + 16,
     },
     footer: {
         position: 'absolute',
-        bottom: 0,
         left: 0,
         right: 0,
-        height: 80,
+        bottom: TAB_BAR_HEIGHT,
+        height: PLAYER_HEIGHT,
         backgroundColor: '#181818',
+        zIndex: 10,
+        elevation: 10,
     },
 });

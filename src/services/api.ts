@@ -1,7 +1,11 @@
 import axios from 'axios';
 
-const api = axios.create({
-    baseURL: 'http://localhost:8080',
+export const api = axios.create({
+    baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://192.168.68.105:8080', // update for your backend URL
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    timeout: 10000,
 });
 
 // Fetch a list of recent tracks (demo: tracks 1–10)
