@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const api = axios.create({
+const api = axios.create({
     baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://192.168.68.105:8080', // update for your backend URL
     headers: {
         'Content-Type': 'application/json',
@@ -48,6 +48,16 @@ export async function getUserPlaylists() {
         { id: 'playlist-2', name: 'Chill Vibes' },
         { id: 'playlist-3', name: 'Workout' },
     ];
+}
+
+export interface UserProfile {
+    id: string;
+    name: string;
+    image: string;
+}
+
+export function getCurrentUser() {
+    return api.get<UserProfile>("/me").then(res => res.data);
 }
 
 export default api;

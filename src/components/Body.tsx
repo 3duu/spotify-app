@@ -15,7 +15,7 @@ interface BodyProps {
 const TAB_BAR_HEIGHT = 56;
 const PLAYER_HEIGHT = 80;
 
-export default function Body({ children, sectionTitle, userImage }: BodyProps): JSX.Element {
+export default function Body({ children, sectionTitle, userImage }: Readonly<BodyProps>): JSX.Element {
     return (
         <Provider store={store}>
             <View style={styles.container}>
