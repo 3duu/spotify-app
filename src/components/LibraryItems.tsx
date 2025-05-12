@@ -5,90 +5,119 @@ import {
     FlatList,
     StyleSheet,
     TouchableOpacity,
-    Image
+    Image,
+    ScrollView
 } from 'react-native';
-import {getRecentPlaylists} from '../services/api';
-
-type Playlist = {
-    id: string;
-    title: string;
-    subtitle: string;
-    icon: string;
-};
+import { getLibraryData, LibraryData } from '../services/api';
 
 export default function LibraryItems() {
-    const [recents, setRecents] = useState<Playlist[]>([]);
+    const [library, setLibrary] = useState<LibraryData | null>(null);
 
     useEffect(() => {
-        getRecentPlaylists().then(response => {
-            setRecents(response);
-        });
-
+        getLibraryData()
+            .then(setLibrary)
+            .catch(err => console.error('Failed to load library:', err));
     }, []);
 
+    if (!library) {
+        return (
+            <View style={styles.loadingContainer}>
+                <Text style={styles.loadingText}>Loading your library…</Text>
+            </View>
+        );
+    }
+
     return (
-        <FlatList
-            data={recents}
-            keyExtractor={(item) => item.id}
-            ListHeaderComponent={
-                <View style={styles.header}>
-                    <Text style={styles.headerText}>Recents</Text>
-                    {/* grid icon would go here */}
-                </View>
-            }
-            renderItem={({ item }) => (
-                <TouchableOpacity style={styles.item}>
-                    <Image source={{ uri: item.icon }} style={styles.icon} />
-                    <View style={styles.info}>
-                        <Text style={styles.title}>{item.title}</Text>
-                        <Text style={styles.subtitle}>{item.subtitle}</Text>
-                    </View>
-                </TouchableOpacity>
-            )}
-            contentContainerStyle={styles.listContent}
-            showsVerticalScrollIndicator={false}
-        />
+        <ScrollView contentContainerStyle={styles.container}>
+            {/* Playlists Section */}
+            <Text style={styles.sectionHeader}>Playlists</Text>
+            <FlatList
+                data={library.playlists}
+                horizontal
+                keyExtractor={item => item.id}
+                renderItem={({ item }) => (
+                    <TouchableOpacity style={styles.card}>
+                        <Image source={{ uri: item.icon }} style={styles.cardImage} />
+                        <Text style={styles.cardTitle} numberOfLines={1}>
+                            {item.title}
+                        </Text>
+                    </TouchableOpacity>
+                )}
+                showsHorizontalScrollIndicator={false}
+            />
+
+            {/* Albums Section */}
+            <Text style={styles.sectionHeader}>Albums</Text>
+            <FlatList
+                data={library.albums}
+                horizontal
+                keyExtractor={item => item.id}
+                renderItem={({ item }) => (
+                    <TouchableOpacity style={styles.card}>
+                        <Image source={{ uri: item.cover }} style={styles.cardImage} />
+                        <Text style={styles.cardTitle} numberOfLines={1}>
+                            {item.title} – {item.artist}
+                        </Text>
+                    </TouchableOpacity>
+                )}
+                showsHorizontalScrollIndicator={false}
+            />
+
+            {/* Podcasts Section */}
+            <Text style={styles.sectionHeader}>Podcasts</Text>
+            <FlatList
+                data={library.podcasts}
+                horizontal
+                keyExtractor={item => item.id}
+                renderItem={({ item }) => (
+                    <TouchableOpacity style={styles.card}>
+                        <Image source={{ uri: item.art }} style={styles.cardImage} />
+                        <Text style={styles.cardTitle} numberOfLines={1}>
+                            {item.title}
+                        </Text>
+                    </TouchableOpacity>
+                )}
+                showsHorizontalScrollIndicator={false}
+            />
+        </ScrollView>
     );
 }
 
+const CARD_SIZE = 120;
 const styles = StyleSheet.create({
-    listContent: {
+    container: {
+        paddingVertical: 16,
         paddingHorizontal: 16,
-        paddingBottom: 80, // leave space for player bar
     },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginVertical: 12,
-    },
-    headerText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
+    loadingContainer: {
         flex: 1,
-    },
-    item: {
-        flexDirection: 'row',
+        justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 16,
     },
-    icon: {
-        width: 48,
-        height: 48,
-        borderRadius: 4,
-        backgroundColor: '#333',
+    loadingText: {
+        color: '#aaa',
+        fontSize: 16,
+    },
+    sectionHeader: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 8,
+        marginTop: 16,
+    },
+    card: {
+        width: CARD_SIZE,
         marginRight: 12,
     },
-    info: {
-        flex: 1,
+    cardImage: {
+        width: CARD_SIZE,
+        height: CARD_SIZE,
+        borderRadius: 8,
+        backgroundColor: '#333',
     },
-    title: {
+    cardTitle: {
         color: '#fff',
         fontSize: 14,
-        marginBottom: 4,
-    },
-    subtitle: {
-        color: '#aaa',
-        fontSize: 12,
+        marginTop: 6,
     },
 });

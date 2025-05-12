@@ -60,4 +60,29 @@ export function getCurrentUser() {
     return api.get<UserProfile>("/me").then(res => res.data);
 }
 
+export interface LibraryData {
+    playlists: {
+        id: string;
+        title: string;
+        subtitle: string;
+        icon: string;
+    }[];
+    albums: {
+        id: string;
+        title: string;
+        artist: string;
+        cover: string;
+    }[];
+    podcasts: {
+        id: string;
+        title: string;
+        hosts: string[];
+        art: string;
+    }[];
+}
+
+export function getLibraryData(): Promise<LibraryData> {
+    return api.get<LibraryData>('/library').then(res => res.data);
+}
+
 export default api;
