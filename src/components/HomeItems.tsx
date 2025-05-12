@@ -58,7 +58,7 @@ export default function HomeItems() {
             </View>
 
             {/* Grid of Playlists */}
-            <Text style={styles.sectionHeader}>Suas Playlists</Text>
+            <Text style={styles.sectionHeader}>Your Playlists</Text>
             <View style={styles.gridContainer}>
                 {playlists.map((item) => (
                     <View key={item.id} style={styles.card}>
@@ -75,14 +75,14 @@ export default function HomeItems() {
             </View>
 
             {/* Featured Section */}
-            <Text style={styles.sectionHeader}>Escolhido para você</Text>
+            <Text style={styles.sectionHeader}>Chosen for you</Text>
             <View style={styles.featuredContainer}>
                 <Image source={{ uri: featured.image }} style={styles.featuredImage} />
                 <Text style={styles.featuredTitle}>{featured.title}</Text>
             </View>
 
             {/* Sextou! Section */}
-            <Text style={styles.sectionHeader}>Sextou!</Text>
+            <Text style={styles.sectionHeader}>TGIF!</Text>
             <FlatList
                 data={sextouData}
                 horizontal

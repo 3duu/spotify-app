@@ -28,7 +28,7 @@ interface Section {
 const suggestions: Suggestion[] = [
     {
         id: '1',
-        title: 'Música para você',
+        title: 'Musica for you',
         image: 'https://via.placeholder.com/120x160'
     },
     { id: '2', title: '#metal', image: 'https://via.placeholder.com/120x160' },
@@ -36,24 +36,24 @@ const suggestions: Suggestion[] = [
 ];
 
 const sections: Section[] = [
-    { id: 'music', title: 'Música', image: 'https://via.placeholder.com/100', backgroundColor: '#d53ddd' },
+    { id: 'music', title: 'Music', image: 'https://via.placeholder.com/100', backgroundColor: '#d53ddd' },
     { id: 'podcasts', title: 'Podcasts', image: 'https://via.placeholder.com/100', backgroundColor: '#6bb430' },
-    { id: 'live', title: 'Eventos ao vivo', image: 'https://via.placeholder.com/100', backgroundColor: '#8c52ff' },
-    { id: 'forYou', title: 'Feito para você', image: 'https://via.placeholder.com/100', backgroundColor: '#1e3264' }
+    { id: 'live', title: 'Live concerts', image: 'https://via.placeholder.com/100', backgroundColor: '#8c52ff' },
+    { id: 'forYou', title: 'For you', image: 'https://via.placeholder.com/100', backgroundColor: '#1e3264' }
 ];
 
 export default function SearchScreen() {
     const userImage = 'https://via.placeholder.com/36';
 
     return (
-        <Body sectionTitle="Buscar" userImage={userImage}>
+        <Body sectionTitle="Search" userImage={userImage}>
             <ScrollView style={styles.container}>
                 {/* Search Bar */}
                 <View style={styles.searchBarContainer}>
                     <MaterialIcons name="search" size={24} color="#888" />
                     <TextInput
                         style={styles.searchInput}
-                        placeholder="O que você quer ouvir?"
+                        placeholder="What do you wanna listen?"
                         placeholderTextColor="#888"
                     />
                     <TouchableOpacity>
@@ -62,7 +62,7 @@ export default function SearchScreen() {
                 </View>
 
                 {/* Discover Suggestions */}
-                <Text style={styles.sectionHeader}>Descubra algo novo pra você</Text>
+                <Text style={styles.sectionHeader}>Discover something new for yourself</Text>
                 <FlatList
                     data={suggestions}
                     horizontal
@@ -77,7 +77,7 @@ export default function SearchScreen() {
                 />
 
                 {/* Browse Sections Grid */}
-                <Text style={styles.sectionHeader}>Navegar por todas as seções</Text>
+                <Text style={styles.sectionHeader}>Browse all sections</Text>
                 <View style={styles.sectionGrid}>
                     {sections.map((sec) => (
                         <TouchableOpacity
