@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -8,6 +8,8 @@ import HomeScreen from './src/screens/HomeScreen';
 import LibraryScreen from './src/screens/LibraryScreen';
 import TrackDetails from './src/screens/TrackDetails';
 import SearchScreen from './src/screens/SearchScreen'; // placeholder or implement accordingly
+
+import { Audio, InterruptionModeIOS, InterruptionModeAndroid } from 'expo-av';
 
 export type RootStackParamList = {
     Home: undefined;
@@ -37,6 +39,19 @@ function LibraryStackScreen() {
 const Tab = createBottomTabNavigator();
 
 export default function App() {
+
+    useEffect(() => {
+        Audio.setAudioModeAsync({
+            allowsRecordingIOS: false,
+            playsInSilentModeIOS: true,
+            interruptionModeIOS: InterruptionModeIOS.DoNotMix,
+            interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
+            shouldDuckAndroid: true,
+            staysActiveInBackground: true,
+            playThroughEarpieceAndroid: false,
+        }).catch(console.warn);
+    }, []);
+
     return (
         <NavigationContainer>
             <Tab.Navigator

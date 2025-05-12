@@ -18,8 +18,14 @@ const playerSlice = createSlice({
             state.currentTrackId = action.payload;
             state.isPlaying = true;
         },
+        setPlaying(state) {
+            state.isPlaying = true;
+        },
+        setPaused(state) {
+            state.isPlaying = false;
+        },
     },
 });
 
-export const { playPause, setTrack } = playerSlice.actions;
+export const { playPause, setTrack, setPlaying, setPaused } = playerSlice.actions;
 export default playerSlice.reducer;

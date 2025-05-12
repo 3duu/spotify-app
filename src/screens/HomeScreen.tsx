@@ -14,7 +14,7 @@ export default function HomeScreen(): JSX.Element {
 
     return (
         <Body
-            sectionTitle="Início"
+            sectionTitle="Home"
             userImage={user?.image ?? "https://via.placeholder.com/36"}
         >
             <HomeItems />
