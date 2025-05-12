@@ -8,24 +8,37 @@ import {
     TouchableOpacity,
     Image
 } from 'react-native';
-import { getUserPlaylists } from '../services/api';
-
-type Playlist = {
-    id: string;
-    name: string;
-    // if your playlist object has a cover image URL, use it here:
-    image?: string;
-};
+import {
+    getRecentPlaylists, PlaylistResponse,
+} from '../services/api';
 
 export default function HomeItems() {
     const [activeTab, setActiveTab] = useState('All');
-    const [playlists, setPlaylists] = useState<Playlist[]>([]);
+    const [playlists, setPlaylists] = useState<PlaylistResponse[]>([]);
 
-    // load the user's playlists once on mount
     useEffect(() => {
-        getUserPlaylists().then((data) => {
-            setPlaylists(data);
-        });
+        // 1) Try fetching recent playlists first
+        getRecentPlaylists('1')
+            .then((recent) => {
+                if (recent.length > 0) {
+                    // Map the API’s response shape into our Playlist type
+                    /*const mapped = recent.map(r => ({
+                        id: r.id,
+                        title: r.title,
+                        image: r.icon,
+                        lastUpdate: r.last_updated,
+                    }));*/
+                    setPlaylists(recent);
+                } else {
+                    // 2) If no recents, load all playlists
+                    return getRecentPlaylists('1').then(all => setPlaylists(all));
+                }
+            })
+            .catch((err) => {
+                console.error('Failed to load recent playlists, falling back to all:', err);
+                // On error, also fall back
+                getRecentPlaylists('1').then(all => setPlaylists(all));
+            });
     }, []);
 
     const categoryTabs = ['All', 'Songs', 'Podcasts'];
@@ -41,16 +54,15 @@ export default function HomeItems() {
 
     return (
         <ScrollView style={styles.container}>
-
             {/* Tabs */}
             <View style={styles.tabsContainer}>
-                {categoryTabs.map((tab) => (
+                {categoryTabs.map(tab => (
                     <TouchableOpacity
                         key={tab}
                         style={[styles.tab, activeTab === tab && styles.activeTab]}
-                        onPress={() => setActiveTab(tab)}>
-                        <Text
-                            style={[styles.tabText, activeTab === tab && styles.activeTabText]}>
+                        onPress={() => setActiveTab(tab)}
+                    >
+                        <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>
                             {tab}
                         </Text>
                     </TouchableOpacity>
@@ -60,15 +72,15 @@ export default function HomeItems() {
             {/* Grid of Playlists */}
             <Text style={styles.sectionHeader}>Your Playlists</Text>
             <View style={styles.gridContainer}>
-                {playlists.map((item) => (
+                {playlists.map(item => (
                     <View key={item.id} style={styles.card}>
-                        {item.image ? (
-                            <Image source={{ uri: item.image }} style={styles.cardImage} />
+                        {item.icon ? (
+                            <Image source={{ uri: item.icon }} style={styles.cardImage} />
                         ) : (
                             <View style={styles.placeholder} />
                         )}
                         <Text style={styles.cardTitle} numberOfLines={1}>
-                            {item.name}
+                            {item.icon}
                         </Text>
                     </View>
                 ))}
@@ -86,7 +98,7 @@ export default function HomeItems() {
             <FlatList
                 data={sextouData}
                 horizontal
-                keyExtractor={(item) => item.id}
+                keyExtractor={item => item.id}
                 renderItem={({ item }) => (
                     <View style={styles.sextouCard}>
                         <Image source={{ uri: item.image }} style={styles.sextouImage} />

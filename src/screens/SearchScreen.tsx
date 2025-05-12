@@ -28,7 +28,7 @@ interface Section {
 const suggestions: Suggestion[] = [
     {
         id: '1',
-        title: 'Musica for you',
+        title: 'Music for you',
         image: 'https://via.placeholder.com/120x160'
     },
     { id: '2', title: '#metal', image: 'https://via.placeholder.com/120x160' },
@@ -38,8 +38,8 @@ const suggestions: Suggestion[] = [
 const sections: Section[] = [
     { id: 'music', title: 'Music', image: 'https://via.placeholder.com/100', backgroundColor: '#d53ddd' },
     { id: 'podcasts', title: 'Podcasts', image: 'https://via.placeholder.com/100', backgroundColor: '#6bb430' },
-    { id: 'live', title: 'Live concerts', image: 'https://via.placeholder.com/100', backgroundColor: '#8c52ff' },
-    { id: 'forYou', title: 'For you', image: 'https://via.placeholder.com/100', backgroundColor: '#1e3264' }
+    { id: 'live', title: 'Live Concerts', image: 'https://via.placeholder.com/100', backgroundColor: '#8c52ff' },
+    { id: 'forYou', title: 'For You', image: 'https://via.placeholder.com/100', backgroundColor: '#1e3264' }
 ];
 
 export default function SearchScreen() {

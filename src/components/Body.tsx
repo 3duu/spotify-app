@@ -20,7 +20,7 @@ export default function Body({ children, sectionTitle, userImage }: Readonly<Bod
         <Provider store={store}>
             <View style={styles.container}>
                 {/* Header */}
-                <Header sectionTitle={sectionTitle} userImage={userImage} />
+                <Header sectionTitle={sectionTitle} />
 
                 {/* Main content */}
                 <View style={styles.content}>{children}</View>

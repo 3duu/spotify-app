@@ -23,15 +23,11 @@ export async function getRecentTracks() {
     return Promise.all(requests);
 }
 
-// Get recent playlists for Library screen
-export async function getRecentPlaylists() {
-    const res = await api.get<{
-        id: string;
-        title: string;
-        subtitle: string;
-        icon: string;
-    }[]>('/library/recent-playlists');
-    return res.data;
+// fetch up to 10 of the user's most recently updated playlists
+export function getRecentPlaylists(userId: string) : Promise<PlaylistResponse[]> {
+    return api
+        .get<PlaylistResponse[]>(`/users/${userId}/recent-playlists`)
+        .then((res) => res.data);
 }
 
 // Mock top artists based on recent tracks
@@ -41,13 +37,19 @@ export async function getTopArtists() {
     return unique.map((name, idx) => ({ id: `artist-${idx + 1}`, name, image: '' }));
 }
 
-// Mock user playlists
-export async function getUserPlaylists() {
-    return [
-        { id: 'playlist-1', name: 'My Favorites' },
-        { id: 'playlist-2', name: 'Chill Vibes' },
-        { id: 'playlist-3', name: 'Workout' },
-    ];
+export interface PlaylistResponse {
+    id: string;
+    title: string;
+    subtitle: string;
+    icon: string;
+    last_updated: string;
+}
+
+// fetch *all* playlists for the current user
+export function getUserPlaylists() {
+    return api
+        .get<PlaylistResponse[]>('/me/playlists') // adjust path if needed
+        .then((res) => res.data);
 }
 
 export interface UserProfile {
@@ -59,6 +61,8 @@ export interface UserProfile {
 export function getCurrentUser() {
     return api.get<UserProfile>("/me").then(res => res.data);
 }
+
+
 
 export interface LibraryData {
     playlists: {
