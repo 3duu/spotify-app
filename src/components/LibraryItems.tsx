@@ -8,7 +8,7 @@ import {
     Image,
     ScrollView
 } from 'react-native';
-import { getLibraryData, LibraryData } from '../services/api';
+import api, { getLibraryData, LibraryData } from '../services/api';
 
 export default function LibraryItems() {
     const [library, setLibrary] = useState<LibraryData | null>(null);
@@ -37,7 +37,7 @@ export default function LibraryItems() {
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
                     <TouchableOpacity style={styles.card}>
-                        <Image source={{ uri: item.icon }} style={styles.cardImage} />
+                        <Image source={{ uri: api.getUri() + item.cover }} style={styles.cardImage} />
                         <Text style={styles.cardTitle} numberOfLines={1}>
                             {item.title}
                         </Text>

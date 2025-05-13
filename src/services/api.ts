@@ -24,7 +24,7 @@ export async function getRecentTracks() {
 }
 
 // fetch up to 10 of the user's most recently updated playlists
-export function getRecentPlaylists(userId: string) : Promise<PlaylistResponse[]> {
+export function getRecentPlaylists(userId: number) : Promise<PlaylistResponse[]> {
     return api
         .get<PlaylistResponse[]>(`/users/${userId}/recent-playlists`)
         .then((res) => res.data);
@@ -38,10 +38,10 @@ export async function getTopArtists() {
 }
 
 export interface PlaylistResponse {
-    id: string;
+    id: number;
     title: string;
     subtitle: string;
-    icon: string;
+    cover: string;
     last_updated: string;
 }
 
@@ -69,7 +69,8 @@ export interface LibraryData {
         id: string;
         title: string;
         subtitle: string;
-        icon: string;
+        cover: string;
+        last_updated: string;
     }[];
     albums: {
         id: string;

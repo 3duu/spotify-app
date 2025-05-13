@@ -8,7 +8,7 @@ import {
     TouchableOpacity,
     Image
 } from 'react-native';
-import {
+import api, {
     getRecentPlaylists, PlaylistResponse,
 } from '../services/api';
 
@@ -18,7 +18,7 @@ export default function HomeItems() {
 
     useEffect(() => {
         // 1) Try fetching recent playlists first
-        getRecentPlaylists('1')
+        getRecentPlaylists(1)
             .then((recent) => {
                 if (recent.length > 0) {
                     // Map the API’s response shape into our Playlist type
@@ -31,13 +31,13 @@ export default function HomeItems() {
                     setPlaylists(recent);
                 } else {
                     // 2) If no recents, load all playlists
-                    return getRecentPlaylists('1').then(all => setPlaylists(all));
+                    return getRecentPlaylists(1).then(all => setPlaylists(all));
                 }
             })
             .catch((err) => {
                 console.error('Failed to load recent playlists, falling back to all:', err);
                 // On error, also fall back
-                getRecentPlaylists('1').then(all => setPlaylists(all));
+                getRecentPlaylists(1).then(all => setPlaylists(all));
             });
     }, []);
 
@@ -74,13 +74,13 @@ export default function HomeItems() {
             <View style={styles.gridContainer}>
                 {playlists.map(item => (
                     <View key={item.id} style={styles.card}>
-                        {item.icon ? (
-                            <Image source={{ uri: item.icon }} style={styles.cardImage} />
+                        {item.cover ? (
+                            <Image source={{ uri: api.getUri() + item.cover }} style={styles.cardImage} />
                         ) : (
                             <View style={styles.placeholder} />
                         )}
                         <Text style={styles.cardTitle} numberOfLines={1}>
-                            {item.icon}
+                            {item.subtitle}
                         </Text>
                     </View>
                 ))}
