@@ -83,9 +83,11 @@ export interface LibraryData {
         last_updated: string;
     }[];
     albums: {
-        id: string;
+        album_id: string;
         title: string;
-        artist: string;
+        artist: {
+            name: string;
+        };
         cover: string;
     }[];
     podcasts: {
@@ -97,7 +99,9 @@ export interface LibraryData {
 }
 
 export function getLibraryData(): Promise<LibraryData> {
-    return api.get<LibraryData>('/library').then(res => res.data);
+    const response = api.get<LibraryData>('/library').then(res => res.data);
+    console.log(response);
+    return response;
 }
 
 export default api;

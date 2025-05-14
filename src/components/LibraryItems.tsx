@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import {
+    ScrollView,
     View,
     Text,
     FlatList,
-    StyleSheet,
     TouchableOpacity,
     Image,
-    ScrollView
+    StyleSheet
 } from 'react-native';
 import api, { getLibraryData, LibraryData } from '../services/api';
 
@@ -15,8 +15,10 @@ export default function LibraryItems() {
 
     useEffect(() => {
         getLibraryData()
-            .then(setLibrary)
-            .catch(err => console.error('Failed to load library:', err));
+            .then(data => setLibrary(data))
+            .catch(err => {
+                console.error('Failed to load library:', err);
+            });
     }, []);
 
     if (!library) {
@@ -28,7 +30,10 @@ export default function LibraryItems() {
     }
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
+        <ScrollView
+            contentContainerStyle={styles.container}
+            showsVerticalScrollIndicator={false}
+        >
             {/* Playlists Section */}
             <Text style={styles.sectionHeader}>Playlists</Text>
             <FlatList
@@ -36,11 +41,16 @@ export default function LibraryItems() {
                 horizontal
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
-                    <TouchableOpacity style={styles.card}>
+                    <TouchableOpacity key={item.id} style={styles.card}>
                         <Image source={{ uri: api.getUri() + item.cover }} style={styles.cardImage} />
                         <Text style={styles.cardTitle} numberOfLines={1}>
                             {item.title}
                         </Text>
+                        {item.subtitle && (
+                            <Text style={styles.cardSubtitle} numberOfLines={1}>
+                                {item.subtitle}
+                            </Text>
+                        )}
                     </TouchableOpacity>
                 )}
                 showsHorizontalScrollIndicator={false}
@@ -51,15 +61,18 @@ export default function LibraryItems() {
             <FlatList
                 data={library.albums}
                 horizontal
-                keyExtractor={item => item.id}
-                renderItem={({ item }) => (
-                    <TouchableOpacity style={styles.card}>
-                        <Image source={{ uri: api.getUri() + item.cover }} style={styles.cardImage} />
-                        <Text style={styles.cardTitle} numberOfLines={1}>
-                            {item.title} – {item.artist}
-                        </Text>
-                    </TouchableOpacity>
-                )}
+                keyExtractor={item => item.album_id.toString()}
+                renderItem={({ item }) => {
+                    const key = item.album_id.toString();
+                    return (
+                        <TouchableOpacity key={key} style={styles.card}>
+                            <Image source={{ uri: api.getUri() + item.cover }} style={styles.cardImage} />
+                            <Text style={styles.cardTitle} numberOfLines={1}>
+                                {item.title} – {item.artist?.name}
+                            </Text>
+                        </TouchableOpacity>
+                    );
+                }}
                 showsHorizontalScrollIndicator={false}
             />
 
@@ -70,7 +83,7 @@ export default function LibraryItems() {
                 horizontal
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
-                    <TouchableOpacity style={styles.card}>
+                    <TouchableOpacity key={item.id} style={styles.card}>
                         <Image source={{ uri: api.getUri() + item.cover }} style={styles.cardImage} />
                         <Text style={styles.cardTitle} numberOfLines={1}>
                             {item.title}
@@ -84,40 +97,45 @@ export default function LibraryItems() {
 }
 
 const CARD_SIZE = 120;
+
 const styles = StyleSheet.create({
     container: {
         paddingVertical: 16,
-        paddingHorizontal: 16,
+        paddingHorizontal: 16
     },
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center',
+        alignItems: 'center'
     },
     loadingText: {
         color: '#aaa',
-        fontSize: 16,
+        fontSize: 16
     },
     sectionHeader: {
         color: '#fff',
         fontSize: 18,
         fontWeight: 'bold',
-        marginBottom: 8,
-        marginTop: 16,
+        marginTop: 24,
+        marginBottom: 8
     },
     card: {
         width: CARD_SIZE,
-        marginRight: 12,
+        marginRight: 12
     },
     cardImage: {
         width: CARD_SIZE,
         height: CARD_SIZE,
         borderRadius: 8,
-        backgroundColor: '#333',
+        backgroundColor: '#333'
     },
     cardTitle: {
         color: '#fff',
         fontSize: 14,
-        marginTop: 6,
+        marginTop: 6
     },
+    cardSubtitle: {
+        color: '#aaa',
+        fontSize: 12
+    }
 });
