@@ -54,7 +54,7 @@ export default function LibraryItems() {
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
                     <TouchableOpacity style={styles.card}>
-                        <Image source={{ uri: item.cover }} style={styles.cardImage} />
+                        <Image source={{ uri: api.getUri() + item.cover }} style={styles.cardImage} />
                         <Text style={styles.cardTitle} numberOfLines={1}>
                             {item.title} – {item.artist}
                         </Text>
@@ -71,7 +71,7 @@ export default function LibraryItems() {
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
                     <TouchableOpacity style={styles.card}>
-                        <Image source={{ uri: item.art }} style={styles.cardImage} />
+                        <Image source={{ uri: api.getUri() + item.cover }} style={styles.cardImage} />
                         <Text style={styles.cardTitle} numberOfLines={1}>
                             {item.title}
                         </Text>

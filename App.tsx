@@ -9,8 +9,6 @@ import LibraryScreen from './src/screens/LibraryScreen';
 import TrackDetails from './src/screens/TrackDetails';
 import SearchScreen from './src/screens/SearchScreen'; // placeholder or implement accordingly
 
-import { Audio, InterruptionModeIOS, InterruptionModeAndroid } from 'expo-av';
-
 export type RootStackParamList = {
     Home: undefined;
     TrackDetails: { id: string };
@@ -40,7 +38,7 @@ const Tab = createBottomTabNavigator();
 
 export default function App() {
 
-    useEffect(() => {
+    /*useEffect(() => {
         Audio.setAudioModeAsync({
             allowsRecordingIOS: false,
             playsInSilentModeIOS: true,
@@ -50,7 +48,7 @@ export default function App() {
             staysActiveInBackground: true,
             playThroughEarpieceAndroid: false,
         }).catch(console.warn);
-    }, []);
+    }, []);*/
 
     return (
         <NavigationContainer>

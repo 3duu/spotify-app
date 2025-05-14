@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
-import { getCurrentUser, UserProfile } from '../services/api';
+import api, { getCurrentUser, UserProfile } from '../services/api';
 
 type HeaderProps = {
     sectionTitle: string;
@@ -18,7 +18,7 @@ export default function Header({ sectionTitle }: Readonly<HeaderProps>) {
     return (
         <View style={styles.container}>
             {user?.image ? (
-                <Image source={{ uri: user.image }} style={styles.avatar} />
+                <Image source={{ uri: api.getUri() + user.image }} style={styles.avatar} />
             ) : (
                 <View style={styles.avatarPlaceholder} />
             )}
