@@ -17,20 +17,18 @@ const PLAYER_HEIGHT = 80;
 
 export default function Body({ children, sectionTitle }: Readonly<BodyProps>): JSX.Element {
     return (
-        <Provider store={store}>
-            <View style={styles.container}>
-                {/* Header */}
-                <Header sectionTitle={sectionTitle} />
+        <View style={styles.container}>
+            {/* Header */}
+            <Header sectionTitle={sectionTitle} />
 
-                {/* Main content */}
-                <View style={styles.content}>{children}</View>
+            {/* Main content */}
+            <View style={styles.content}>{children}</View>
 
-                {/* Footer / Player bar */}
-                <View style={styles.footer}>
-                    <Player />
-                </View>
+            {/* Footer / Player bar */}
+            <View style={styles.footer}>
+                <Player />
             </View>
-        </Provider>
+        </View>
     );
 }
 

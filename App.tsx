@@ -7,7 +7,9 @@ import { MaterialIcons } from '@expo/vector-icons';
 import HomeScreen from './src/screens/HomeScreen';
 import LibraryScreen from './src/screens/LibraryScreen';
 import TrackDetails from './src/screens/TrackDetails';
-import SearchScreen from './src/screens/SearchScreen'; // placeholder or implement accordingly
+import SearchScreen from './src/screens/SearchScreen';
+import {Provider} from "react-redux";
+import store from "./src/store"; // placeholder or implement accordingly
 
 export type RootStackParamList = {
     Home: undefined;
@@ -51,26 +53,28 @@ export default function App() {
     }, []);*/
 
     return (
-        <NavigationContainer>
-            <Tab.Navigator
-                screenOptions={({ route }) => ({
-                    headerShown: false,
-                    tabBarStyle: { backgroundColor: '#000' },
-                    tabBarActiveTintColor: '#1DB954',
-                    tabBarInactiveTintColor: '#888',
-                    tabBarIcon: ({ color, size }) => {
-                        let iconName: keyof typeof MaterialIcons.glyphMap;
-                        if (route.name === 'HomeTab') iconName = 'home';
-                        else if (route.name === 'SearchTab') iconName = 'search';
-                        else iconName = 'library-music';
-                        return <MaterialIcons name={iconName} size={size} color={color} />;
-                    }
-                })}
-            >
-                <Tab.Screen name="HomeTab" component={HomeStackScreen} options={{ title: 'Home' }} />
-                <Tab.Screen name="SearchTab" component={SearchScreen} options={{ title: 'Search' }} />
-                <Tab.Screen name="LibraryTab" component={LibraryStackScreen} options={{ title: 'Your Library' }} />
-            </Tab.Navigator>
-        </NavigationContainer>
+        <Provider store={store}>
+            <NavigationContainer>
+                <Tab.Navigator
+                    screenOptions={({ route }) => ({
+                        headerShown: false,
+                        tabBarStyle: { backgroundColor: '#000' },
+                        tabBarActiveTintColor: '#1DB954',
+                        tabBarInactiveTintColor: '#888',
+                        tabBarIcon: ({ color, size }) => {
+                            let iconName: keyof typeof MaterialIcons.glyphMap;
+                            if (route.name === 'HomeTab') iconName = 'home';
+                            else if (route.name === 'SearchTab') iconName = 'search';
+                            else iconName = 'library-music';
+                            return <MaterialIcons name={iconName} size={size} color={color} />;
+                        }
+                    })}
+                >
+                    <Tab.Screen name="HomeTab" component={HomeStackScreen} options={{ title: 'Home' }} />
+                    <Tab.Screen name="SearchTab" component={SearchScreen} options={{ title: 'Search' }} />
+                    <Tab.Screen name="LibraryTab" component={LibraryStackScreen} options={{ title: 'Your Library' }} />
+                </Tab.Navigator>
+            </NavigationContainer>
+        </Provider>
     );
 }

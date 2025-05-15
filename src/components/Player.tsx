@@ -5,10 +5,10 @@ import {
     Image,
     TouchableOpacity,
     StyleSheet,
-    ActivityIndicator
+    ActivityIndicator,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useAudioPlayer } from 'expo-audio';
+import { createAudioPlayer, AudioPlayer } from 'expo-audio';
 import { useAppDispatch, useAppSelector } from '../store';
 import { setPlaying, setPaused } from '../store/slices/playerSlice';
 import api from '../services/api';
@@ -24,70 +24,68 @@ interface TrackMeta {
 export default function Player() {
     const dispatch = useAppDispatch();
     const { currentTrackId, isPlaying } = useAppSelector(s => s.player);
-    const [track, setTrack] = useState<TrackMeta | null>(null);
-    const [loading, setLoading] = useState(false);
 
-    // Get an AudioPlayer instance
-    const player = useAudioPlayer();
+    const [track, setTrack]         = useState<TrackMeta | null>(null);
+    const [loading, setLoading]     = useState(false);
+    const [player, setPlayer]       = useState<AudioPlayer | null>(null);
 
-    // 1) When track ID changes, fetch metadata & replace in player
+    // 1) Whenever the track ID changes, tear down the old player and create a new one
     useEffect(() => {
         let active = true;
 
         async function loadTrack() {
             setLoading(true);
 
-            // If no track selected, unload and clear state
+            // 1a) Tear down any existing player
+            if (player) {
+                player.release();
+                setPlayer(null);
+            }
+
+            // 1b) If there's no track selected, just clear state
             if (!currentTrackId) {
-                player.remove();
                 setTrack(null);
                 setLoading(false);
                 return;
             }
 
-            try {
-                // Fetch track info
-                const { data } = await api.get<TrackMeta>(`/tracks/${currentTrackId}`);
-                if (!active) return;
+            // 1c) Fetch the metadata from your backend
+            const { data } = await api.get<TrackMeta>(`/tracks/${currentTrackId}`);
+            if (!active) return;
+            setTrack(data);
 
-                setTrack(data);
+            // 1d) Create a fresh AudioPlayer for this URI
+            const newPlayer = createAudioPlayer({ uri: data.audio_url });
+            setPlayer(newPlayer);
+            setLoading(false);
 
-                // Load into player (this auto-unloads the old source)
-                player.replace({ uri: data.audio_url });
-
-                // If we’re already “playing” in Redux, start immediately
-                if (isPlaying) {
-                    player.play();
-                }
-            } catch (err) {
-                console.error('Error loading track:', err);
-            } finally {
-                setLoading(false);
+            // 1e) If Redux says we should already be playing, kick it off
+            if (isPlaying) {
+                newPlayer.play();
             }
         }
 
-        loadTrack();
+        loadTrack().catch(console.error);
+
         return () => {
             active = false;
-            player.remove(); // cleanup when unmounting or track changes
+            // release when unmounting or before loading the next
+            player?.release();
         };
     }, [currentTrackId]);
 
     // 2) Sync play/pause toggles
     useEffect(() => {
-        if (loading) return;            // don’t interrupt while loading
-        if (player.isBuffering) return; // wait until buffering completes
-
+        if (!player || loading) return;
         if (isPlaying) player.play();
         else player.pause();
-    }, [isPlaying]);
+    }, [isPlaying, player, loading]);
 
     const onPlayPress = () => {
         dispatch(isPlaying ? setPaused() : setPlaying());
     };
 
-    // Determine whether to show spinner or button
-    const showSpinner = loading || player.isBuffering;
+    const showSpinner = loading;
 
     return (
         <View style={styles.container}>
@@ -96,7 +94,7 @@ export default function Player() {
                     source={{
                         uri:
                             track.album_art ??
-                            track.audio_url.replace('/audio', '/album-art.png')
+                            track.audio_url.replace('/audio', '/album-art.png'),
                     }}
                     style={styles.art}
                 />
@@ -118,7 +116,7 @@ export default function Player() {
             ) : (
                 <TouchableOpacity onPress={onPlayPress} style={styles.playButton}>
                     <MaterialIcons
-                        name={player.playing ? 'pause' : 'play-arrow'}
+                        name={isPlaying ? 'pause' : 'play-arrow'}
                         size={32}
                         color="#fff"
                     />
@@ -133,41 +131,30 @@ const PLAYER_HEIGHT = 70;
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: 'rgba(5, 44, 44, 0.5)',
-        paddingHorizontal: 16,
+        alignItems:    'center',
+        backgroundColor:'rgba(0,0,0,0.6)',
+        paddingHorizontal:16,
         height: PLAYER_HEIGHT,
     },
     art: {
-        width: 50,
-        height: 50,
-        borderRadius: 4,
-        marginRight: 12
+        width: 50, height: 50, borderRadius:4, marginRight:12
     },
     artPlaceholder: {
-        width: 50,
-        height: 50,
-        borderRadius: 4,
-        backgroundColor: '#333',
-        marginRight: 12
+        width: 50, height:50, borderRadius:4, backgroundColor:'#333', marginRight:12
     },
     info: {
-        flex: 1,
-        justifyContent: 'center'
+        flex: 1, justifyContent: 'center'
     },
     title: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold'
+        color:'#fff', fontSize:15, fontWeight:'600'
     },
     artist: {
-        color: '#ccc',
-        fontSize: 12
+        color:'#aaa', fontSize:12
     },
     playButton: {
-        padding: 8
+        padding:8
     },
     icon: {
-        marginHorizontal: 16
+        marginHorizontal:16
     }
 });

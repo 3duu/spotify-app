@@ -105,3 +105,36 @@ export function getLibraryData(): Promise<LibraryData> {
 }
 
 export default api;
+
+export class Artist {
+}
+
+export class SearchResults {
+}
+
+export interface Artist {
+    id:    string;
+    name:  string;
+    image: string;
+}
+
+export interface Album {
+    album_id: number;
+    title:    string;
+    artist:   string;
+    cover:    string;
+}
+
+export interface SearchResults {
+    tracks:    TrackMeta[];
+    artists:   Artist[];
+    albums:    Album[];
+    playlists: PlaylistResponse[];
+}
+
+/** Call GET /search?q=... and return all four result lists */
+export function search(query: string): Promise<SearchResults> {
+    return api
+        .get<SearchResults>('/search', { params: { q: query } })
+        .then(res => res.data);
+}
