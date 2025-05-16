@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
     View,
     Text,
@@ -37,11 +37,42 @@ export default function SearchScreen({ navigation }: any) {
     const [loading, setLoading] = useState(false);
     const dispatch = useAppDispatch();
 
+    // we keep a ref to the timer so we can clear it
+    const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+    // 1) Run the search 500ms after the user stops typing:
+    useEffect(() => {
+        // clear any pending timer
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+
+        // if query is empty, clear results
+        if (!query.trim()) {
+            setResults(null);
+            return;
+        }
+
+        // set a new timer
+        debounceRef.current = setTimeout(() => {
+            setLoading(true);
+            search(query.trim())
+                .then(res => setResults(res))
+                .catch(console.error)
+                .finally(() => setLoading(false));
+        }, 500); // 0.5s debounce
+
+        // cleanup on unmount or before next effect run
+        return () => {
+            if (debounceRef.current) clearTimeout(debounceRef.current);
+        };
+    }, [query]);
+
     const onSubmit = () => {
         if (!query.trim()) return;
+        // we can just call the same code immediately:
+        if (debounceRef.current) clearTimeout(debounceRef.current);
         setLoading(true);
-        search(query)
-            .then(data => setResults(data))
+        search(query.trim())
+            .then(res => setResults(res))
             .catch(console.error)
             .finally(() => setLoading(false));
     };
@@ -53,7 +84,7 @@ export default function SearchScreen({ navigation }: any) {
                 onPress={() => dispatch(setTrack(item.id))}
             >
                 <Image
-                    source={{ uri: item.album_art ?? item.audio_url.replace('/audio','/album-art.png') }}
+                    source={{ uri: item.album_art ?? item.audio_url.replace('/audio','/album-art.jpg') }}
                     style={styles.resultImage}
                 />
                 <View style={styles.resultText}>
@@ -119,16 +150,19 @@ export default function SearchScreen({ navigation }: any) {
             <View style={styles.container}>
                 {/* Search Bar */}
                 <View style={styles.searchBarContainer}>
-                    <MaterialIcons name="search" size={24} color="#888" />
-                    <TextInput
-                        style={styles.searchInput}
-                        placeholder="What do you want to listen?"
-                        placeholderTextColor="#888"
-                        returnKeyType="search"
-                        value={query}
-                        onChangeText={setQuery}
-                        onSubmitEditing={onSubmit}
-                    />
+                    {/*<TouchableOpacity onPress={onSubmit} style={styles.searchIconButton}>*/}
+                        <MaterialIcons name="search" size={24} color="#888"/>
+                        <TextInput
+                            style={styles.searchInput}
+                            placeholder="What do you want to listen?"
+                            placeholderTextColor="#888"
+                            returnKeyType="search"
+                            autoCapitalize="none"
+                            value={query}
+                            onChangeText={setQuery}
+                            onSubmitEditing={onSubmit}
+                        />
+                    {/*</TouchableOpacity>*/}
                 </View>
 
                 {loading && (
@@ -295,5 +329,9 @@ const styles = StyleSheet.create({
         width: CARD_SIZE * 0.6,
         height: CARD_SIZE * 0.6,
         borderRadius: 4,
+    },
+    searchIconButton: {
+        marginLeft: 8,              // space between input and icon
+        padding: 4,                 // larger hit area
     },
 });

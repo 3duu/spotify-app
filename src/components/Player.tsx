@@ -14,7 +14,7 @@ import { setPlaying, setPaused } from '../store/slices/playerSlice';
 import api from '../services/api';
 
 interface TrackMeta {
-    id:        string;
+    id:        number;
     title:     string;
     artist:    string;
     audio_url: string;
@@ -94,7 +94,7 @@ export default function Player() {
                     source={{
                         uri:
                             track.album_art ??
-                            track.audio_url.replace('/audio', '/album-art.png'),
+                            track.audio_url.replace('/audio', '/album-art.jpg'),
                     }}
                     style={styles.art}
                 />
@@ -131,9 +131,9 @@ const PLAYER_HEIGHT = 70;
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
-        alignItems:    'center',
-        backgroundColor:'rgba(0,0,0,0.6)',
-        paddingHorizontal:16,
+        alignItems: 'center',
+        backgroundColor: 'rgba(5, 44, 44, 0.5)',
+        paddingHorizontal: 16,
         height: PLAYER_HEIGHT,
     },
     art: {
