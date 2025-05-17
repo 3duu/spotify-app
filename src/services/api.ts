@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://10.14.0.2:8080', // update for your backend URL
+    baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://192.168.68.101:8080', // update for your backend URL
     headers: {
         'Content-Type': 'application/json',
     },
@@ -106,7 +106,9 @@ export function getLibraryData(): Promise<LibraryData> {
 
 export default api;
 
-export class Artist {
+export interface Artist {
+    artist_id: number;
+    name: string;
 }
 
 export class SearchResults {

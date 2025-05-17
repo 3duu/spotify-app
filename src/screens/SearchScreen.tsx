@@ -11,7 +11,7 @@ import {
     ActivityIndicator
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { search, SearchResults, TrackMeta, Artist, Album, PlaylistResponse } from '../services/api';
+import api, { search, SearchResults, TrackMeta, Artist, Album, PlaylistResponse } from '../services/api';
 import { useAppDispatch } from '../store';
 import { setTrack } from '../store/slices/playerSlice';
 import Body from '../components/Body';
@@ -66,7 +66,7 @@ export default function SearchScreen({ navigation }: any) {
         };
     }, [query]);
 
-    const onSubmit = () => {
+    /*const onSubmit = () => {
         if (!query.trim()) return;
         // we can just call the same code immediately:
         if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -75,7 +75,7 @@ export default function SearchScreen({ navigation }: any) {
             .then(res => setResults(res))
             .catch(console.error)
             .finally(() => setLoading(false));
-    };
+    };*/
 
     function renderTrack({ item }: { item: TrackMeta }) {
         return (
@@ -84,7 +84,7 @@ export default function SearchScreen({ navigation }: any) {
                 onPress={() => dispatch(setTrack(item.id))}
             >
                 <Image
-                    source={{ uri: item.album_art ?? item.audio_url.replace('/audio','/album-art.jpg') }}
+                    source={{ uri: api.getUri() + item.album_art }}
                     style={styles.resultImage}
                 />
                 <View style={styles.resultText}>
@@ -101,7 +101,7 @@ export default function SearchScreen({ navigation }: any) {
                 style={styles.resultItem}
                 onPress={() => navigation.navigate('Artist', { id: item.id })}
             >
-                <Image source={{ uri: item.image }} style={styles.resultImage} />
+                <Image source={{ uri: api.getUri() + item.image }} style={styles.resultImage} />
                 <Text style={styles.resultTitle}>{item.name}</Text>
             </TouchableOpacity>
         );
@@ -113,7 +113,7 @@ export default function SearchScreen({ navigation }: any) {
                 style={styles.resultItem}
                 onPress={() => navigation.navigate('Album', { id: item.album_id.toString() })}
             >
-                <Image source={{ uri: item.cover }} style={styles.resultImage} />
+                <Image source={{ uri: api.getUri() + item.cover }} style={styles.resultImage} />
                 <Text style={styles.resultTitle}>{item.title}</Text>
                 <Text style={styles.resultSubtitle}>{item.artist}</Text>
             </TouchableOpacity>
@@ -126,7 +126,7 @@ export default function SearchScreen({ navigation }: any) {
                 style={styles.resultItem}
                 onPress={() => navigation.navigate('Playlist', { id: item.id })}
             >
-                <Image source={{ uri: item.cover }} style={styles.resultImage} />
+                <Image source={{ uri: api.getUri() + item.cover }} style={styles.resultImage} />
                 <Text style={styles.resultTitle}>{item.title}</Text>
             </TouchableOpacity>
         );
@@ -160,7 +160,7 @@ export default function SearchScreen({ navigation }: any) {
                             autoCapitalize="none"
                             value={query}
                             onChangeText={setQuery}
-                            onSubmitEditing={onSubmit}
+                            //onSubmitEditing={onSubmit}
                         />
                     {/*</TouchableOpacity>*/}
                 </View>
