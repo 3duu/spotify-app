@@ -8,15 +8,7 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAudioPlayer } from 'expo-audio';
-import { getTrack } from '../services/api';
-
-interface TrackMeta {
-    id:        string;
-    title:     string;
-    artist:    string;
-    audio_url: string;
-    album_art?:string;
-}
+import {getTrack, TrackMeta} from '../services/api';
 
 export default function TrackDetails({ route }: any) {
     const { id } = route.params;
@@ -69,7 +61,7 @@ export default function TrackDetails({ route }: any) {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>{track.title}</Text>
-            <Text style={styles.artist}>{track.artist}</Text>
+            <Text style={styles.artist}>{track.artist || 'Unknown Artist'}</Text>
 
             {loading ? (
                 <ActivityIndicator color="#1DB954" style={{ marginTop: 20 }} />

@@ -66,8 +66,10 @@ export interface TrackMeta {
     id:        string;
     title:     string;
     artist:    string;
+    artist_id: number;
     audio_url: string;
     album_art?:string;
+    duration:     number;
 }
 
 export function getTrack(id: string): Promise<TrackMeta> {
@@ -104,19 +106,9 @@ export function getLibraryData(): Promise<LibraryData> {
     return response;
 }
 
-export default api;
-
 export interface Artist {
     artist_id: number;
     name: string;
-}
-
-export class SearchResults {
-}
-
-export interface Artist {
-    id:    string;
-    name:  string;
     image: string;
 }
 
@@ -140,3 +132,5 @@ export function search(query: string): Promise<SearchResults> {
         .get<SearchResults>('/search', { params: { q: query } })
         .then(res => res.data);
 }
+
+export default api;
