@@ -11,15 +11,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { createAudioPlayer, AudioPlayer } from 'expo-audio';
 import { useAppDispatch, useAppSelector } from '../store';
 import { setPlaying, setPaused } from '../store/slices/playerSlice';
-import api from '../services/api';
-
-interface TrackMeta {
-    id:        number;
-    title:     string;
-    artist:    string;
-    audio_url: string;
-    album_art?:string;
-}
+import api, {TrackMeta} from '../services/api';
 
 export default function Player() {
     const dispatch = useAppDispatch();
@@ -92,9 +84,7 @@ export default function Player() {
             {track ? (
                 <Image
                     source={{
-                        uri:
-                            track.album_art ??
-                            track.audio_url.replace('/audio', '/album-art.jpg'),
+                        uri: api.getUri() + track.album_art
                     }}
                     style={styles.art}
                 />

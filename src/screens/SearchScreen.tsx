@@ -99,7 +99,7 @@ export default function SearchScreen({ navigation }: any) {
         return (
             <TouchableOpacity
                 style={styles.resultItem}
-                onPress={() => navigation.navigate('Artist', { id: item.id })}
+                onPress={() => navigation.navigate('Artist', { id: item.artist_id })}
             >
                 <Image source={{ uri: api.getUri() + item.image }} style={styles.resultImage} />
                 <Text style={styles.resultTitle}>{item.name}</Text>

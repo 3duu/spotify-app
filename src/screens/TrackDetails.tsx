@@ -4,15 +4,16 @@ import {
     Text,
     StyleSheet,
     TouchableOpacity,
-    ActivityIndicator
+    ActivityIndicator,
+    Image
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAudioPlayer } from 'expo-audio';
-import {getTrack, TrackMeta} from '../services/api';
+import api, {getTrack, TrackMeta} from '../services/api';
 
 export default function TrackDetails({ route }: any) {
     const { id } = route.params;
-    const [track, setTrackMeta] = useState<TrackMeta | null>(null);
+    const [track, setTrack] = useState<TrackMeta | null>(null);
     const [loading, setLoading] = useState(false);
 
     // create the player instance
@@ -26,7 +27,7 @@ export default function TrackDetails({ route }: any) {
             const data = await getTrack(id);
             if (!mounted) return;
 
-            setTrackMeta(data);
+            setTrack(data);
             // replace the source; hook handles unloading old audio
             player.replace({ uri: data.audio_url });
             setLoading(false);
@@ -60,8 +61,19 @@ export default function TrackDetails({ route }: any) {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>{track.title}</Text>
-            <Text style={styles.artist}>{track.artist || 'Unknown Artist'}</Text>
+            <View style={styles.row}>
+                <Image
+                    source={{
+                        uri: api.getUri() + track.album_art
+                    }}
+                    style={styles.albumArt}
+                    resizeMode="cover"
+                />
+                <View style={styles.textContainer}>
+                    <Text style={styles.title}>{track.title}</Text>
+                    <Text style={styles.artist}>{track.artist || 'Unknown Artist'}</Text>
+                </View>
+            </View>
 
             {loading ? (
                 <ActivityIndicator color="#1DB954" style={{ marginTop: 20 }} />
@@ -76,6 +88,7 @@ export default function TrackDetails({ route }: any) {
             )}
         </View>
     );
+
 }
 
 const styles = StyleSheet.create({
@@ -86,6 +99,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         padding: 16
+    },
+    albumArt: {
+        width: 80,
+        height: 80,
+        borderRadius: 8,
+        marginRight: 16,
     },
     title: {
         color: '#fff',
@@ -100,5 +119,13 @@ const styles = StyleSheet.create({
     },
     playButton: {
         marginTop: 16
-    }
+    },
+    row: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 24,
+    },
+    textContainer: {
+        flex: 1,
+    },
 });
