@@ -66,7 +66,7 @@ export default function SearchScreen({ navigation }: any) {
         };
     }, [query]);
 
-    /*const onSubmit = () => {
+    const onSubmit = () => {
         if (!query.trim()) return;
         // we can just call the same code immediately:
         if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -75,7 +75,7 @@ export default function SearchScreen({ navigation }: any) {
             .then(res => setResults(res))
             .catch(console.error)
             .finally(() => setLoading(false));
-    };*/
+    };
 
     function renderTrack({ item }: { item: TrackMeta }) {
         return (
@@ -160,7 +160,7 @@ export default function SearchScreen({ navigation }: any) {
                             autoCapitalize="none"
                             value={query}
                             onChangeText={setQuery}
-                            //onSubmitEditing={onSubmit}
+                            onSubmitEditing={onSubmit}
                         />
                     {/*</TouchableOpacity>*/}
                 </View>

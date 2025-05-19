@@ -7,9 +7,9 @@ import {
     ActivityIndicator,
     Image
 } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
 import { useAudioPlayer } from 'expo-audio';
 import api, {getTrack, TrackMeta} from '../services/api';
+import { MaterialCommunityIcons, MaterialIcons  } from '@expo/vector-icons';
 
 export default function TrackDetails({ route }: any) {
     const { id } = route.params;
@@ -28,8 +28,9 @@ export default function TrackDetails({ route }: any) {
             if (!mounted) return;
 
             setTrack(data);
+
             // replace the source; hook handles unloading old audio
-            player.replace({ uri: data.audio_url });
+            player.replace({ uri: api.getUri() + data.audio_url });
             setLoading(false);
             // autoplay on load
             player.play();
@@ -44,6 +45,7 @@ export default function TrackDetails({ route }: any) {
 
     // 2) Toggle play/pause on button press
     const onPlayPause = () => {
+
         if (player.playing) {
             player.pause();
         } else {
@@ -60,32 +62,30 @@ export default function TrackDetails({ route }: any) {
     }
 
     return (
-        <View style={styles.container}>
-            <View style={styles.row}>
-                <Image
-                    source={{
-                        uri: api.getUri() + track.album_art
-                    }}
-                    style={styles.albumArt}
-                    resizeMode="cover"
-                />
-                <View style={styles.textContainer}>
-                    <Text style={styles.title}>{track.title}</Text>
-                    <Text style={styles.artist}>{track.artist || 'Unknown Artist'}</Text>
+        <View style={styles.trackContainer}>
+            <View style={styles.trackRow}>
+                <Image source={{ uri: api.getUri() + track.album_art }} style={styles.albumArt} />
+
+                <View style={styles.trackText}>
+                    <Text numberOfLines={1} style={styles.titleArtist}>
+                        {track.title} • {track.artist}
+                    </Text>
+                    <Text style={styles.deviceText}>🔊 AIWA Boombox BBS-01</Text>
+                </View>
+
+                <View style={styles.actions}>
+                    <MaterialCommunityIcons name="speaker" size={20} color="#1DB954" />
+                    <TouchableOpacity onPress={onPlayPause}>
+                        <MaterialIcons
+                            name={player.playing ? 'pause' : 'play-arrow'}
+                            size={28}
+                            color="#fff"
+                        />
+                    </TouchableOpacity>
                 </View>
             </View>
 
-            {loading ? (
-                <ActivityIndicator color="#1DB954" style={{ marginTop: 20 }} />
-            ) : (
-                <TouchableOpacity onPress={onPlayPause} style={styles.playButton}>
-                    <MaterialIcons
-                        name={player.playing ? 'pause-circle-filled' : 'play-circle-filled'}
-                        size={64}
-                        color="#1DB954"
-                    />
-                </TouchableOpacity>
-            )}
+            <View style={styles.progressBar} />
         </View>
     );
 
@@ -100,32 +100,50 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 16
     },
-    albumArt: {
-        width: 80,
-        height: 80,
+    trackContainer: {
+        backgroundColor: '#2c0f0f',
+        padding: 8,
         borderRadius: 8,
-        marginRight: 16,
     },
-    title: {
-        color: '#fff',
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 8
-    },
-    artist: {
-        color: '#aaa',
-        fontSize: 18,
-        marginBottom: 32
-    },
-    playButton: {
-        marginTop: 16
-    },
-    row: {
+
+    trackRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 24,
     },
-    textContainer: {
+
+    albumArt: {
+        width: 50,
+        height: 50,
+        borderRadius: 4,
+        marginRight: 10,
+    },
+
+    trackText: {
         flex: 1,
+        justifyContent: 'center',
+    },
+
+    titleArtist: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: '#fff',
+    },
+
+    deviceText: {
+        fontSize: 12,
+        color: '#1DB954',
+    },
+
+    actions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+
+    progressBar: {
+        height: 2,
+        backgroundColor: '#fff',
+        marginTop: 6,
+        width: '70%', // optional, animate width for progress
     },
 });

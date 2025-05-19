@@ -47,9 +47,11 @@ export default function Player() {
             setTrack(data);
 
             // 1d) Create a fresh AudioPlayer for this URI
-            const newPlayer = createAudioPlayer({ uri: data.audio_url });
+            const newPlayer = createAudioPlayer({ uri: api.getUri() + data.audio_url });
             setPlayer(newPlayer);
             setLoading(false);
+
+            console.log(data);
 
             // 1e) If Redux says we should already be playing, kick it off
             if (isPlaying) {
