@@ -51,8 +51,6 @@ export default function Player() {
             setPlayer(newPlayer);
             setLoading(false);
 
-            console.log(data);
-
             // 1e) If Redux says we should already be playing, kick it off
             if (isPlaying) {
                 newPlayer.play();

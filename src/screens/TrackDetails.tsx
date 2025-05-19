@@ -5,53 +5,40 @@ import {
     StyleSheet,
     TouchableOpacity,
     ActivityIndicator,
-    Image
+    Image,
 } from 'react-native';
-import { useAudioPlayer } from 'expo-audio';
+import { MaterialIcons } from '@expo/vector-icons';
+import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import api, {getTrack, TrackMeta} from '../services/api';
-import { MaterialCommunityIcons, MaterialIcons  } from '@expo/vector-icons';
 
 export default function TrackDetails({ route }: any) {
-    const { id } = route.params;
-    const [track, setTrack] = useState<TrackMeta | null>(null);
-    const [loading, setLoading] = useState(false);
+    const { id } = route.params as { id: string };
+    const [track, setTrack]     = useState<TrackMeta | null>(null);
+    const [loading, setLoading] = useState(true);
 
-    // create the player instance
+    // 2) Create the player and subscribe to its status
     const player = useAudioPlayer();
+    const status = useAudioPlayerStatus(player);
 
-    // 1) Fetch track metadata & load into player
+    // 3) Fetch metadata (including duration) and load the audio
     useEffect(() => {
-        let mounted = true;
-        async function load() {
+        let active = true;
+        (async () => {
             setLoading(true);
             const data = await getTrack(id);
-            if (!mounted) return;
+            if (!active) return;
 
             setTrack(data);
-
-            // replace the source; hook handles unloading old audio
             player.replace({ uri: api.getUri() + data.audio_url });
             setLoading(false);
-            // autoplay on load
             player.play();
-        }
-        load().catch(console.error);
+        })().catch(console.error);
 
         return () => {
-            mounted = false;
+            active = false;
             player.remove();
         };
     }, [id]);
-
-    // 2) Toggle play/pause on button press
-    const onPlayPause = () => {
-
-        if (player.playing) {
-            player.pause();
-        } else {
-            player.play();
-        }
-    };
 
     if (!track) {
         return (
@@ -61,89 +48,99 @@ export default function TrackDetails({ route }: any) {
         );
     }
 
+    // 4) Compute fill ratio: currentTime / totalDuration
+    const current = status.currentTime  ?? 0;
+    const total   = status.duration     ?? track.duration;
+    const ratio   = total > 0 ? current / total : 0;
+
+    // 5) Format mm:ss for display
+    const fmt = (sec: number) => {
+        const m = Math.floor(sec/60).toString().padStart(2,'0');
+        const s = Math.floor(sec%60).toString().padStart(2,'0');
+        return `${m}:${s}`;
+    };
+
     return (
-        <View style={styles.trackContainer}>
-            <View style={styles.trackRow}>
-                <Image source={{ uri: api.getUri() + track.album_art }} style={styles.albumArt} />
-
-                <View style={styles.trackText}>
-                    <Text numberOfLines={1} style={styles.titleArtist}>
-                        {track.title} • {track.artist}
+        <View style={styles.container}>
+            <View style={styles.topRow}>
+                <Image
+                    source={{ uri: api.getUri() + (track.album_art ?? '') }}
+                    style={styles.art}
+                />
+                <View style={styles.info}>
+                    <Text numberOfLines={1} style={styles.title}>
+                        {track.title}
                     </Text>
-                    <Text style={styles.deviceText}>🔊 AIWA Boombox BBS-01</Text>
+                    <Text style={styles.artist}>{track.artist}</Text>
                 </View>
-
-                <View style={styles.actions}>
-                    <MaterialCommunityIcons name="speaker" size={20} color="#1DB954" />
-                    <TouchableOpacity onPress={onPlayPause}>
-                        <MaterialIcons
-                            name={player.playing ? 'pause' : 'play-arrow'}
-                            size={28}
-                            color="#fff"
-                        />
-                    </TouchableOpacity>
-                </View>
+                <TouchableOpacity
+                    onPress={() => status.playing ? player.pause() : player.play()}
+                >
+                    <MaterialIcons
+                        name={status.playing ? 'pause' : 'play-arrow'}
+                        size={32}
+                        color="#fff"
+                    />
+                </TouchableOpacity>
             </View>
 
-            <View style={styles.progressBar} />
+            {/* 6) Flex-based progress bar */}
+            <View style={styles.progressBarWrapper}>
+                <View style={styles.progressBackground}>
+                    <View style={[styles.progressFill,      { flex: ratio      }]} />
+                    <View style={[styles.progressRemaining, { flex: 1 - ratio }]} />
+                </View>
+                <Text style={styles.timeText}>
+                    {fmt(current)} / {fmt(total)}
+                </Text>
+            </View>
         </View>
     );
-
 }
 
 const styles = StyleSheet.create({
-    loader: { flex:1, justifyContent:'center', alignItems:'center', backgroundColor:'#121212' },
+    loader: {
+        flex:1, justifyContent:'center', alignItems:'center', backgroundColor:'#121212'
+    },
     container: {
-        flex: 1,
-        backgroundColor: '#121212',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 16
+        flex:1, backgroundColor:'#121212', padding:16
     },
-    trackContainer: {
-        backgroundColor: '#2c0f0f',
-        padding: 8,
-        borderRadius: 8,
+    topRow: {
+        flexDirection:'row', alignItems:'center', marginBottom:16
     },
-
-    trackRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
+    art: {
+        width:50, height:50, borderRadius:4, marginRight:12
     },
-
-    albumArt: {
-        width: 50,
-        height: 50,
-        borderRadius: 4,
-        marginRight: 10,
+    info: {
+        flex:1
+    },
+    title: {
+        fontSize:16, fontWeight:'bold', color:'#fff'
+    },
+    artist: {
+        fontSize:12, color:'#aaa', marginTop:4
     },
 
-    trackText: {
-        flex: 1,
-        justifyContent: 'center',
+    progressBarWrapper: {
+        marginTop:16
     },
-
-    titleArtist: {
-        fontSize: 14,
-        fontWeight: 'bold',
-        color: '#fff',
+    progressBackground: {
+        flexDirection:'row',
+        height:4,
+        backgroundColor:'#333',
+        borderRadius:2,
+        overflow:'hidden'
     },
-
-    deviceText: {
-        fontSize: 12,
-        color: '#1DB954',
+    progressFill: {
+        backgroundColor:'#1DB954'
     },
-
-    actions: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
+    progressRemaining: {
+        backgroundColor:'transparent'
     },
-
-    progressBar: {
-        height: 2,
-        backgroundColor: '#fff',
-        marginTop: 6,
-        width: '70%', // optional, animate width for progress
-    },
+    timeText: {
+        color:'#aaa',
+        fontSize:10,
+        textAlign:'right',
+        marginTop:4
+    }
 });
