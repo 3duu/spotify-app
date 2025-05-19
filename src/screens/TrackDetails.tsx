@@ -9,18 +9,18 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
-import api, {getTrack, TrackMeta} from '../services/api';
+import api, { getTrack, TrackMeta } from '../services/api';
 
 export default function TrackDetails({ route }: any) {
     const { id } = route.params as { id: string };
     const [track, setTrack]     = useState<TrackMeta | null>(null);
     const [loading, setLoading] = useState(true);
 
-    // 2) Create the player and subscribe to its status
+    // 1) set up audio player and status hook
     const player = useAudioPlayer();
     const status = useAudioPlayerStatus(player);
 
-    // 3) Fetch metadata (including duration) and load the audio
+    // 2) load metadata & audio
     useEffect(() => {
         let active = true;
         (async () => {
@@ -48,12 +48,11 @@ export default function TrackDetails({ route }: any) {
         );
     }
 
-    // 4) Compute fill ratio: currentTime / totalDuration
-    const current = status.currentTime  ?? 0;
-    const total   = status.duration     ?? track.duration;
-    const ratio   = total > 0 ? current / total : 0;
+    // 3) compute progress & toggle play/pause
+    const currentSec = status.currentTime ?? 0;
+    const totalSec   = status.duration    ?? track.duration;
+    const ratio      = totalSec > 0 ? currentSec / totalSec : 0;
 
-    // 5) Format mm:ss for display
     const fmt = (sec: number) => {
         const m = Math.floor(sec/60).toString().padStart(2,'0');
         const s = Math.floor(sec%60).toString().padStart(2,'0');
@@ -68,13 +67,14 @@ export default function TrackDetails({ route }: any) {
                     style={styles.art}
                 />
                 <View style={styles.info}>
-                    <Text numberOfLines={1} style={styles.title}>
-                        {track.title}
-                    </Text>
-                    <Text style={styles.artist}>{track.artist}</Text>
+                    <Text style={styles.title}>{track.title}</Text>
+                    <Text style={styles.artist}>Artist</Text>
+                    {/*<Text style={styles.artist}>{track.artist}</Text>*/}
                 </View>
                 <TouchableOpacity
-                    onPress={() => status.playing ? player.pause() : player.play()}
+                    onPress={() =>
+                        status.playing ? player.pause() : player.play()
+                    }
                 >
                     <MaterialIcons
                         name={status.playing ? 'pause' : 'play-arrow'}
@@ -84,14 +84,14 @@ export default function TrackDetails({ route }: any) {
                 </TouchableOpacity>
             </View>
 
-            {/* 6) Flex-based progress bar */}
-            <View style={styles.progressBarWrapper}>
-                <View style={styles.progressBackground}>
-                    <View style={[styles.progressFill,      { flex: ratio      }]} />
-                    <View style={[styles.progressRemaining, { flex: 1 - ratio }]} />
+            {/* flex‐based progress bar */}
+            <View style={styles.progressWrapper}>
+                <View style={styles.progressBg}>
+                    <View style={[styles.progressFill,      { flex: ratio }]} />
+                    <View style={[styles.progressRemain,    { flex: 1 - ratio }]} />
                 </View>
-                <Text style={styles.timeText}>
-                    {fmt(current)} / {fmt(total)}
+                <Text style={styles.time}>
+                    {fmt(currentSec)} / {fmt(totalSec)}
                 </Text>
             </View>
         </View>
@@ -99,48 +99,17 @@ export default function TrackDetails({ route }: any) {
 }
 
 const styles = StyleSheet.create({
-    loader: {
-        flex:1, justifyContent:'center', alignItems:'center', backgroundColor:'#121212'
-    },
-    container: {
-        flex:1, backgroundColor:'#121212', padding:16
-    },
-    topRow: {
-        flexDirection:'row', alignItems:'center', marginBottom:16
-    },
-    art: {
-        width:50, height:50, borderRadius:4, marginRight:12
-    },
-    info: {
-        flex:1
-    },
-    title: {
-        fontSize:16, fontWeight:'bold', color:'#fff'
-    },
-    artist: {
-        fontSize:12, color:'#aaa', marginTop:4
-    },
+    loader: { flex:1,justifyContent:'center',alignItems:'center',backgroundColor:'#121212' },
+    container: { flex:1,backgroundColor:'#121212',padding:16 },
+    topRow:    { flexDirection:'row',alignItems:'center',marginBottom:16 },
+    art:       { width:50,height:50,borderRadius:4,marginRight:12 },
+    info:      { flex:1 , justifyContent: 'center',},
+    title:     { color:'#fff',fontSize:16,fontWeight:'bold' },
+    artist:    { color:'#aaa',fontSize:12,marginTop:4, lineHeight: 16, flexShrink: 1, },
 
-    progressBarWrapper: {
-        marginTop:16
-    },
-    progressBackground: {
-        flexDirection:'row',
-        height:4,
-        backgroundColor:'#333',
-        borderRadius:2,
-        overflow:'hidden'
-    },
-    progressFill: {
-        backgroundColor:'#1DB954'
-    },
-    progressRemaining: {
-        backgroundColor:'transparent'
-    },
-    timeText: {
-        color:'#aaa',
-        fontSize:10,
-        textAlign:'right',
-        marginTop:4
-    }
+    progressWrapper: { marginTop:16,width:'100%' },
+    progressBg:      { flexDirection:'row',height:4,backgroundColor:'#333',borderRadius:2,overflow:'hidden' },
+    progressFill:    { backgroundColor:'#1DB954' },
+    progressRemain:  { backgroundColor:'transparent' },
+    time:            { color:'#aaa',fontSize:10,textAlign:'right',marginTop:4 },
 });
