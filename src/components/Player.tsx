@@ -1,4 +1,3 @@
-// src/components/Player.tsx
 import React, { useEffect, useState } from 'react';
 import {
     View,
@@ -9,32 +8,33 @@ import {
     ActivityIndicator,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { createAudioPlayer, AudioPlayer } from 'expo-audio';
+import { player } from '../services/audioPlayer';
 import { useAppDispatch, useAppSelector } from '../store';
 import { setPlaying, setPaused } from '../store/slices/playerSlice';
 import api, { TrackMeta } from '../services/api';
+import { useNavigation } from '@react-navigation/native';
 
 export default function Player() {
     const dispatch = useAppDispatch();
     const { currentTrackId, isPlaying } = useAppSelector(s => s.player);
 
-    const [track, setTrack]         = useState<TrackMeta | null>(null);
-    const [loading, setLoading]     = useState(false);
-    const [player, setPlayer]       = useState<AudioPlayer | null>(null);
-    const [position, setPosition]   = useState(0);  // seconds
-    const [duration, setDuration]   = useState(0);  // seconds
+    const [track,   setTrack]   = useState<TrackMeta | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [position, setPosition] = useState(0);
+    const [duration, setDuration] = useState(0);
 
-    // 1) When track ID changes, unload old player and load metadata + new player
+    const navigation = useNavigation<any>();
+
+    // Load / replace the singleton player whenever the track ID changes
     useEffect(() => {
         let active = true;
+
         (async () => {
             setLoading(true);
 
-            // unload previous
-            if (player) {
-                player.release();
-                setPlayer(null);
-            }
+            // release any previous media
+            //player?.release();
+            player?.pause();
 
             if (!currentTrackId) {
                 setTrack(null);
@@ -42,108 +42,112 @@ export default function Player() {
                 return;
             }
 
-            // fetch metadata (including duration!)
+            // fetch metadata
             const { data } = await api.get<TrackMeta>(`/tracks/${currentTrackId}`);
             if (!active) return;
-
             setTrack(data);
             setDuration(data.duration);
 
-            // create new player
-            const p = createAudioPlayer({ uri: api.getUri() + data.audio_url });
-            setPlayer(p);
+            // load the new source onto the same player
+            player.replace({ uri: api.getUri() + data.audio_url });
             setLoading(false);
 
-            // auto-play if redux says so
-            if (isPlaying) {
-                p.play();
-            }
+            // auto‐play if redux says so
+            if (isPlaying) player.play();
         })().catch(console.error);
 
         return () => {
             active = false;
-            player?.release();
+            // optionally pause
+            player?.pause();
         };
     }, [currentTrackId]);
 
-    // 2) Poll the player's built-in props every 500ms
+    // Poll position & duration every 500ms
     useEffect(() => {
-        if (!player) return;
         const iv = setInterval(() => {
-            // these are provided by AudioPlayer
-            setPosition(player.currentTime);   // in seconds :contentReference[oaicite:1]{index=1}
-            setDuration(player.duration);      // in seconds :contentReference[oaicite:2]{index=2}
+            setPosition(player.currentTime);
+            setDuration(player.duration);
         }, 500);
         return () => clearInterval(iv);
-    }, [player]);
+    }, []);
 
-    // 3) Sync play/pause when isPlaying toggles
+    // Sync play/pause state
     useEffect(() => {
-        if (!player || loading) return;
+        if (loading) return;
         isPlaying ? player.play() : player.pause();
-    }, [isPlaying, player, loading]);
+    }, [isPlaying, loading]);
 
     const onPlayPress = () => {
         dispatch(isPlaying ? setPaused() : setPlaying());
     };
 
-    // ratio for progress bar fill
     const ratio = duration > 0 ? Math.min(position / duration, 1) : 0;
 
     return (
-        <View style={styles.wrapper}>
-            <View style={styles.container}>
-                {track ? (
-                    <Image
-                        source={{ uri: api.getUri() + track.album_art }}
-                        style={styles.art}
-                    />
-                ) : (
-                    <View style={styles.artPlaceholder} />
-                )}
+        <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={() => {
+                if (currentTrackId) {
+                    navigation.navigate('HomeTab', {
+                        screen: 'TrackDetails',
+                        params: { id: currentTrackId },
+                    });
+                }
+            }}
+        >
+            <View style={styles.wrapper}>
+                <View style={styles.container}>
+                    {track ? (
+                        <Image
+                            source={{ uri: api.getUri() + track.album_art }}
+                            style={styles.art}
+                        />
+                    ) : (
+                        <View style={styles.artPlaceholder} />
+                    )}
 
-                <View style={styles.info}>
-                    <Text style={styles.title} numberOfLines={1}>
-                        {track?.title ?? 'Not Playing'}
-                    </Text>
-                    <Text style={styles.artist} numberOfLines={1}>
-                        {track?.artist ?? ''}
-                    </Text>
+                    <View style={styles.info}>
+                        <Text style={styles.title} numberOfLines={1}>
+                            {track?.title ?? 'Not Playing'}
+                        </Text>
+                        <Text style={styles.artist} numberOfLines={1}>
+                            {track?.artist ?? ''}
+                        </Text>
+                    </View>
+
+                    {loading ? (
+                        <ActivityIndicator color="#fff" style={styles.icon} />
+                    ) : (
+                        <TouchableOpacity onPress={onPlayPress} style={styles.playButton}>
+                            <MaterialIcons
+                                name={isPlaying ? 'pause' : 'play-arrow'}
+                                size={32}
+                                color="#fff"
+                            />
+                        </TouchableOpacity>
+                    )}
                 </View>
 
-                {loading ? (
-                    <ActivityIndicator color="#fff" style={styles.icon} />
-                ) : (
-                    <TouchableOpacity onPress={onPlayPress} style={styles.playButton}>
-                        <MaterialIcons
-                            name={isPlaying ? 'pause' : 'play-arrow'}
-                            size={32}
-                            color="#fff"
-                        />
-                    </TouchableOpacity>
-                )}
+                <View style={styles.progressBackground}>
+                    <View style={[styles.progressFill,  { flex: ratio }]} />
+                    <View style={[styles.progressEmpty, { flex: 1 - ratio }]} />
+                </View>
             </View>
-
-            {/* Progress bar */}
-            <View style={styles.progressBackground}>
-                <View style={[styles.progressFill,  { flex: ratio }]} />
-                <View style={[styles.progressEmpty, { flex: 1 - ratio }]} />
-            </View>
-        </View>
+        </TouchableOpacity>
     );
 }
 
 const PLAYER_HEIGHT = 70;
 
 const styles = StyleSheet.create({
-    wrapper: {
-        // leave this un-flexed so it doesn’t push other content
-    },
+    wrapper: {},
+
     progressBackground: {
         flexDirection: 'row',
         height: 4,
         backgroundColor: '#333',
-        marginTop: 4,      // ← add spacing
+        marginTop: 4,
     },
     progressFill: {
         backgroundColor: '#1DB954',
@@ -155,26 +159,38 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'rgba(0,0,0,0.6)',
+        backgroundColor: 'rgba(5, 44, 44, 0.5)',
         paddingHorizontal: 16,
         height: PLAYER_HEIGHT,
     },
     art: {
-        width: 50, height: 50, borderRadius: 4, marginRight: 12,
+        width: 50,
+        height: 50,
+        borderRadius: 4,
+        marginRight: 12,
     },
     artPlaceholder: {
-        width: 50, height: 50, borderRadius: 4, backgroundColor: '#333', marginRight: 12,
+        width: 50,
+        height: 50,
+        borderRadius: 4,
+        backgroundColor: '#333',
+        marginRight: 12,
     },
     info: {
         flex: 1,
         justifyContent: 'center',
-        minWidth: 0,      // allow shrink on web
+        minWidth: 0,
     },
     title: {
-        color: '#fff', fontSize: 15, fontWeight: '600', flexShrink: 1,
+        color: '#fff',
+        fontSize: 15,
+        fontWeight: '600',
+        flexShrink: 1,
     },
     artist: {
-        color: '#aaa', fontSize: 12, flexShrink: 1,
+        color: '#aaa',
+        fontSize: 12,
+        flexShrink: 1,
     },
     playButton: {
         padding: 8,
