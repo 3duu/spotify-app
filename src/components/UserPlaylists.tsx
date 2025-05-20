@@ -1,34 +1,28 @@
 import React, { useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { getUserPlaylists } from '../services/api';
+import {getUserPlaylists, PlaylistResponse} from '../services/api';
 import type { RootStackParamList } from '../../App';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
-
-// Playlist type
-type Playlist = {
-    id: string;
-    name: string;
-};
 
 // Navigation prop for potential PlaylistDetails screen (optional)
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'TrackDetails'>;
 
 export default function UserPlaylists() {
-    const [playlists, setPlaylists] = React.useState<Playlist[]>([]);
+    const [playlists, setPlaylists] = React.useState<PlaylistResponse[]>([]);
     const navigation = useNavigation<NavigationProp>();
 
     useEffect(() => {
         getUserPlaylists().then(setPlaylists);
     }, []);
 
-    const renderItem = ({ item }: { item: Playlist }) => (
+    const renderItem = ({ item }: { item: PlaylistResponse }) => (
         <TouchableOpacity
             style={styles.item}
             // If you implement a PlaylistDetails screen, you can navigate like this:
             // onPress={() => navigation.navigate('PlaylistDetails', { id: item.id })}
         >
-            <Text style={styles.name}>{item.name}</Text>
+            <Text style={styles.name}>{item.title}</Text>
         </TouchableOpacity>
     );
 
@@ -37,7 +31,7 @@ export default function UserPlaylists() {
             <Text style={styles.header}>Your Playlists</Text>
             <FlatList
                 data={playlists}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) => item.id.toString()}
                 renderItem={renderItem}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.list}

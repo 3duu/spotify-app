@@ -68,8 +68,7 @@ export default function TrackDetails({ route }: any) {
                 />
                 <View style={styles.info}>
                     <Text style={styles.title}>{track.title}</Text>
-                    <Text style={styles.artist}>Artist</Text>
-                    {/*<Text style={styles.artist}>{track.artist}</Text>*/}
+                    <Text style={styles.artist}>{track.artist}</Text>
                 </View>
                 <TouchableOpacity
                     onPress={() =>
