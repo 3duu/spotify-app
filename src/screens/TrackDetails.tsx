@@ -21,6 +21,7 @@ export default function TrackDetails({ navigation, route }: any) {
     const [loading, setLoading]   = useState(true);
     const [position, setPosition] = useState(0);
     const [duration, setDuration] = useState(1);
+    const [playing, setPlaying]   = useState(false);
 
     // control states
     const [shuffle, setShuffle] = useState(false);
@@ -53,23 +54,23 @@ export default function TrackDetails({ navigation, route }: any) {
 
             setTrack(data);
             setDuration(data.duration);
-            player.replace({ uri: api.getUri() + data.audio_url });
-            player.play();
             setLoading(false);
-
-            // poll position every 500 ms
-            const iv = setInterval(() => {
-                setPosition(player.currentTime ?? 0);
-                setDuration(player.duration ?? data.duration);
-            }, 500);
-            return () => clearInterval(iv);
         })().catch(console.warn);
 
         return () => {
             active = false;
-            player.remove();
         };
     }, [id]);
+
+    // 🛠️ Poll player for currentTime, duration, and playing
+    useEffect(() => {
+        const iv = setInterval(() => {
+            setPosition(player.currentTime ?? 0);
+            setDuration(player.duration    ?? track?.duration ?? 0);
+            setPlaying (player.playing     ?? false);
+        }, 300);
+        return () => clearInterval(iv);
+    }, [player, track]);
 
     // format mm:ss
     const fmt = (s: number) => {
@@ -159,13 +160,10 @@ export default function TrackDetails({ navigation, route }: any) {
                         <MaterialIcons name="skip-previous" size={36} color="#fff" />
                     </TouchableOpacity>
 
-                    <TouchableOpacity
-                        style={styles.playButtonLarge}
-                        onPress={onPlayPause}
-                    >
+                    <TouchableOpacity onPress={onPlayPause}>
                         <MaterialIcons
-                            name={player.playing ? 'pause' : 'play-arrow'}
-                            size={48}
+                            name={playing ? 'pause' : 'play-arrow'}
+                            size={32}
                             color="#fff"
                         />
                     </TouchableOpacity>
