@@ -70,6 +70,7 @@ export interface TrackMeta {
     audio_url: string;
     album_art?:string;
     duration:     number;
+    color:     string;
 }
 
 export function getTrack(id: string): Promise<TrackMeta> {

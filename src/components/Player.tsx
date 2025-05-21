@@ -97,8 +97,8 @@ export default function Player() {
             }}
         >
             <View style={styles.wrapper}>
-                <View style={styles.container}>
-                    {track ? (
+                <View style={[styles.container, { backgroundColor: track?.color }]}>
+                {track ? (
                         <Image
                             source={{ uri: api.getUri() + track.album_art }}
                             style={styles.art}

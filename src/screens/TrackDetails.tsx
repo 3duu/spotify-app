@@ -81,9 +81,9 @@ export default function TrackDetails({ navigation, route }: any) {
 
     if (loading || !track) {
         return (
-            <View style={styles.loader}>
-                <ActivityIndicator size="large" color="#1DB954" />
-            </View>
+            <SafeAreaView style={[styles.loader, { backgroundColor: track?.color ?? '#052c2c' }]}>
+                <ActivityIndicator size="large" color="#fff"/>
+            </SafeAreaView>
         );
     }
 
@@ -91,7 +91,7 @@ export default function TrackDetails({ navigation, route }: any) {
     const ratio     = duration > 0 ? position / duration : 0;
 
     return (
-        <SafeAreaView style={styles.safe}>
+        <SafeAreaView style={[styles.safe, { backgroundColor: track.color }]}>
             {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
