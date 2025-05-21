@@ -82,7 +82,7 @@ export function getTrack(id: string): Promise<TrackMeta> {
 
 export interface LibraryData {
     playlists: {
-        id: string;
+        id: number;
         title: string;
         subtitle: string;
         cover: string;

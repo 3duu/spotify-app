@@ -124,7 +124,7 @@ export default function SearchScreen({ navigation }: any) {
         return (
             <TouchableOpacity
                 style={styles.resultItem}
-                onPress={() => navigation.navigate('Playlist', { id: item.id })}
+                onPress={() => navigation.navigate('Playlist', { playlistId: item.id, name: item.title })}
             >
                 <Image source={{ uri: api.getUri() + item.cover }} style={styles.resultImage} />
                 <Text style={styles.resultTitle}>{item.title}</Text>

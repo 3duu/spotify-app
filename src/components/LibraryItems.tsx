@@ -9,8 +9,13 @@ import {
     StyleSheet
 } from 'react-native';
 import api, { getLibraryData, LibraryData } from '../services/api';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import {RootStackParamList} from "../../App";
+import {useNavigation} from "@react-navigation/native";
 
 export default function LibraryItems() {
+
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [library, setLibrary] = useState<LibraryData | null>(null);
 
     useEffect(() => {
@@ -39,9 +44,13 @@ export default function LibraryItems() {
             <FlatList
                 data={library.playlists}
                 horizontal
-                keyExtractor={item => item.id}
+                keyExtractor={item => item.id.toString()}
                 renderItem={({ item }) => (
-                    <TouchableOpacity key={item.id} style={styles.card}>
+                     <TouchableOpacity
+                       key={item.id}
+                       style={styles.card}
+                       onPress={() => navigation.navigate('Playlist', { playlistId: item.id, name: item.title })}
+                     >
                         <Image source={{ uri: api.getUri() + item.cover }} style={styles.cardImage} />
                         <Text style={styles.cardTitle} numberOfLines={1}>
                             {item.title}
