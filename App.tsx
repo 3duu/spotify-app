@@ -9,12 +9,14 @@ import LibraryScreen from './src/screens/LibraryScreen';
 import TrackDetails from './src/screens/TrackDetails';
 import SearchScreen from './src/screens/SearchScreen';
 import {Provider} from "react-redux";
-import store from "./src/store"; // placeholder or implement accordingly
+import store from "./src/store";
+import PlaylistScreen from "./src/screens/PlaylistScreen"; // placeholder or implement accordingly
 
 export type RootStackParamList = {
     Home: undefined;
     TrackDetails: { id: string };
     Library: undefined;
+    Playlist: { name: string, playlistId: number }
 };
 
 const HomeStack = createNativeStackNavigator<RootStackParamList>();
@@ -23,6 +25,7 @@ function HomeStackScreen() {
         <HomeStack.Navigator screenOptions={{ headerShown: false }}>
             <HomeStack.Screen name="Home" component={HomeScreen} />
             <HomeStack.Screen name="TrackDetails" component={TrackDetails} options={{ headerShown: true, title: 'Now Playing' }} />
+            <HomeStack.Screen name="Playlist" component={PlaylistScreen} options={{ headerShown: true, title: 'Playlist' }} />
         </HomeStack.Navigator>
     );
 }
@@ -32,6 +35,11 @@ function LibraryStackScreen() {
     return (
         <LibraryStack.Navigator screenOptions={{ headerShown: false }}>
             <LibraryStack.Screen name="Library" component={LibraryScreen} />
+                       <LibraryStack.Screen
+                           name="Playlist"
+                           component={PlaylistScreen}
+                           options={{ headerShown: true, title: 'Playlist' }}
+                       />
         </LibraryStack.Navigator>
     );
 }

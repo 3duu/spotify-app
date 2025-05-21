@@ -11,8 +11,14 @@ import {
 import api, {
     getRecentPlaylists, PlaylistResponse,
 } from '../services/api';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+import {useNavigation} from "@react-navigation/native";
+import {RootStackParamList} from "../../App";
 
 export default function HomeItems() {
+
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [activeTab, setActiveTab] = useState('All');
     const [playlists, setPlaylists] = useState<PlaylistResponse[]>([]);
 
@@ -72,17 +78,25 @@ export default function HomeItems() {
             {/* Grid of Playlists */}
             <Text style={styles.sectionHeader}>Your Playlists</Text>
             <View style={styles.gridContainer}>
-                {playlists.map(item => (
-                    <View key={item.id} style={styles.card}>
-                        {item.cover ? (
-                            <Image source={{ uri: api.getUri() + item.cover }} style={styles.cardImage} />
-                        ) : (
-                            <View style={styles.placeholder} />
-                        )}
-                        <Text style={styles.cardTitle} numberOfLines={1}>
-                            {item.subtitle}
-                        </Text>
-                    </View>
+                {/*{playlists.map(item => (
+                    <View key={item.id} style={styles.card}>*/}
+                       {playlists.map(item => (
+                             <TouchableOpacity
+                               key={item.id}
+                               style={styles.card}
+                               onPress={() => navigation.navigate('Playlist', { playlistId: item.id, name: item.title })}
+                             >
+                                {item.cover ? (
+                                    <Image source={{ uri: api.getUri() + item.cover }} style={styles.cardImage} />
+                                ) : (
+                                    <View style={styles.placeholder} />
+                                )}
+                                <Text style={styles.cardTitle} numberOfLines={1}>
+                                    {item.subtitle}
+                                </Text>
+                             </TouchableOpacity>
+                    /*</View>*/
+
                 ))}
             </View>
 

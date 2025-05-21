@@ -1,7 +1,10 @@
 import axios from 'axios';
 
+
+
+
 const api = axios.create({
-    baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://192.168.68.101:8080', // update for your backend URL
+    baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://172.26.192.1:8080', // update for your backend URL
     headers: {
         'Content-Type': 'application/json',
     },
@@ -132,6 +135,29 @@ export function search(query: string): Promise<SearchResults> {
     return api
         .get<SearchResults>('/search', { params: { q: query } })
         .then(res => res.data);
+}
+
+export interface TrackItem {
+    id:         string;
+    title:      string;
+    artist:     string;
+    cover:      string;
+    video:      boolean;
+    downloaded: boolean;
+}
+
+export interface PlaylistDetail {
+    id:          string;
+    title:       string;
+    cover:       string;
+    ownerName:   string;
+    ownerImage:  string;
+    duration:    string;
+    tracks:      TrackItem[];
+}
+
+export function getPlaylist(id: string) {
+    return api.get<PlaylistDetail>(`/playlists/${id}`).then(r => r.data);
 }
 
 export default api;

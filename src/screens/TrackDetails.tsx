@@ -7,7 +7,7 @@ import {
     ActivityIndicator,
     Image,
     SafeAreaView,
-    ScrollView
+    ScrollView, Platform
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { MaterialIcons, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
@@ -17,15 +17,15 @@ import { player } from '../services/audioPlayer';
 export default function TrackDetails({ navigation, route }: any) {
     const { id } = route.params as { id: string };
 
-    const [track, setTrack]       = useState<TrackMeta | null>(null);
-    const [loading, setLoading]   = useState(true);
+    // ── 1) All your useState hooks first ─────────────────────────
+    const [track,    setTrack]    = useState<TrackMeta | null>(null);
+    const [loading,  setLoading]  = useState(true);
     const [position, setPosition] = useState(0);
     const [duration, setDuration] = useState(1);
-    const [playing, setPlaying]   = useState(false);
-
-    // control states
-    const [shuffle, setShuffle] = useState(false);
-    const [repeat, setRepeat]   = useState(false);
+    const [playing,  setPlaying]  = useState(false);
+    const [deviceName, setDeviceName] = useState('Phone speaker');
+    const [shuffle,  setShuffle]  = useState(false);
+    const [repeat,   setRepeat]   = useState(false);
 
     // handlers
     const onShufflePress = () => setShuffle(s => !s);
@@ -44,40 +44,61 @@ export default function TrackDetails({ navigation, route }: any) {
         player.playing ? player.pause() : player.play();
     };
 
-    // load metadata & audio
-    useEffect(() => {
-        let active = true;
-        (async () => {
-            setLoading(true);
-            const data = await getTrack(id);
-            if (!active) return;
-
-            setTrack(data);
-            setDuration(data.duration);
-            setLoading(false);
-        })().catch(console.warn);
-
-        return () => {
-            active = false;
-        };
-    }, [id]);
-
-    // 🛠️ Poll player for currentTime, duration, and playing
-    useEffect(() => {
-        const iv = setInterval(() => {
-            setPosition(player.currentTime ?? 0);
-            setDuration(player.duration    ?? track?.duration ?? 0);
-            setPlaying (player.playing     ?? false);
-        }, 300);
-        return () => clearInterval(iv);
-    }, [player, track]);
-
     // format mm:ss
     const fmt = (s: number) => {
         const m = Math.floor(s/60).toString().padStart(2,'0');
         const ss= Math.floor(s%60).toString().padStart(2,'0');
         return `${m}:${ss}`;
     };
+
+    // ── 2) All your useEffect hooks next ─────────────────────────
+    // 2a) fetch track metadata
+    useEffect(() => {
+        let active = true;
+        (async () => {
+            setLoading(true);
+            const data = await getTrack(id);
+            if (!active) return;
+            setTrack(data);
+            setDuration(data.duration);
+            setLoading(false);
+        })().catch(console.warn);
+        return () => { active = false; };
+    }, [id]);
+
+    // 2b) poll the shared player for position/duration/playing
+    useEffect(() => {
+        const iv = setInterval(() => {
+            setPosition(player.currentTime);
+            setDuration(player.duration   ?? duration);
+            setPlaying (player.playing    ?? playing);
+        }, 300);
+        return () => clearInterval(iv);
+    }, [player, duration]);
+
+    // 2c) detect the output device (once)
+    useEffect(() => {
+        if (Platform.OS === 'web' && navigator.mediaDevices?.enumerateDevices) {
+            navigator.mediaDevices
+                .enumerateDevices()
+                .then(devs => {
+                    const audioOut = devs.find(d => d.kind === 'audiooutput');
+                    if (audioOut?.label) setDeviceName(audioOut.label);
+                })
+                .catch(() => {});
+        }
+    }, []);
+
+    // ── 3) Now you can do your early return ───────────────────────
+    if (loading || !track) {
+        return (
+            <SafeAreaView style={[styles.loader, { backgroundColor: track?.color ?? '#000' }]}>
+                <ActivityIndicator size="large" color="#fff" />
+            </SafeAreaView>
+        );
+    }
+
+    const remaining = duration - position;
 
     if (loading || !track) {
         return (
@@ -86,9 +107,6 @@ export default function TrackDetails({ navigation, route }: any) {
             </SafeAreaView>
         );
     }
-
-    const remaining = duration - position;
-    const ratio     = duration > 0 ? position / duration : 0;
 
     return (
         <SafeAreaView style={[styles.safe, { backgroundColor: track.color }]}>
@@ -113,14 +131,14 @@ export default function TrackDetails({ navigation, route }: any) {
                 />
 
                 {/* Switch to video */}
-                <TouchableOpacity style={styles.switchButton}>
+                {/*<TouchableOpacity style={styles.switchButton}>
                     <MaterialIcons name="videocam" size={20} color="#fff" />
                     <Text style={styles.switchText}>Switch to video</Text>
-                </TouchableOpacity>
+                </TouchableOpacity>*/}
 
                 {/* Title & Artist */}
                 <View style={styles.infoRow}>
-                    <View style={{ flex: 1 }}>
+                    <View style={{ flex: 1 , top: 12}}>
                         <Text style={styles.titleText}>{track.title}</Text>
                         <Text style={styles.artistText}>{track.artist}</Text>
                     </View>
@@ -184,7 +202,7 @@ export default function TrackDetails({ navigation, route }: any) {
                 {/* Device / Share / Queue */}
                 <View style={styles.bottomRow}>
                     <MaterialCommunityIcons name="cast" size={20} color="#1DB954" />
-                    <Text style={styles.deviceText}>AIWA Boombox BBS-01</Text>
+                    <Text style={styles.deviceText}>{deviceName}</Text>
                     <TouchableOpacity style={styles.bottomIcon}>
                         <MaterialIcons name="share" size={20} color="#fff" />
                     </TouchableOpacity>
@@ -194,10 +212,10 @@ export default function TrackDetails({ navigation, route }: any) {
                 </View>
 
                 {/* Lyrics */}
-                <TouchableOpacity style={styles.lyricsButton}>
+                {/*<TouchableOpacity style={styles.lyricsButton}>
                     <MaterialIcons name="library-music" size={20} color="#fff" />
                     <Text style={styles.lyricsText}>Lyrics</Text>
-                </TouchableOpacity>
+                </TouchableOpacity>*/}
             </ScrollView>
         </SafeAreaView>
     );
