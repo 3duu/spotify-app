@@ -12,41 +12,62 @@ import {
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
-import api, { getPlaylist } from '../services/api';
+import api, {
+    getPlaylist,
+    addTrackToPlaylist,
+    removeTrackFromPlaylist,
+    updatePlaylistMeta,
+    reorderPlaylist, PlaylistDetail, TrackItem,
+} from '../services/api';
 import Player from '../components/Player';
-
-interface TrackItem {
-    id:         string;
-    title:      string;
-    artist:     string;
-    cover:      string;
-    video:      boolean;
-    downloaded: boolean;
-}
-
-interface PlaylistDetail {
-    id:          string;
-    title:       string;
-    cover:       string;
-    ownerName:   string;
-    ownerImage:  string;
-    duration:    string;       // e.g. "5h 59m"
-    tracks:      TrackItem[];
-}
 
 export default function PlaylistScreen() {
     const route = useRoute<any>();
     const navigation = useNavigation();
-    const { playlistId } = route.params as { playlistId: string };
+    const { playlistId } = route.params as { playlistId: number };
 
     const [playlist, setPlaylist] = useState<PlaylistDetail | null>(null);
     const [loading, setLoading]   = useState(true);
+
+    // 1) Add a track (opens prompt for demo)
+    const onAddPress = async () => {
+        const id : number = 0;
+        if (!id) return;
+        await addTrackToPlaylist(playlistId, id);
+        const refreshed = await getPlaylist(playlistId);
+        setPlaylist(refreshed);
+    };
+
+// 2) Remove a track (for demo we remove the last)
+    const onRemoveLast = async () => {
+        if (!playlist || playlist.tracks.length === 0) return;
+        const lastId = playlist.tracks[playlist.tracks.length - 1].id;
+        await removeTrackFromPlaylist(playlistId, lastId);
+        setPlaylist(await getPlaylist(playlistId));
+    };
+
+    // 3) Rename / Edit meta
+    const onEditPress = async () => {
+        const newTitle = prompt('New playlist name?', playlist!.title);
+        if (!newTitle) return;
+        await updatePlaylistMeta(playlistId, { title: newTitle });
+        setPlaylist(await getPlaylist(playlistId));
+    };
+
+// 4) Reorder (demo: reverse order)
+    const onSortPress = async () => {
+        if (!playlist) return;
+        const ids = playlist.tracks.map(t => t.id).reverse();
+        await reorderPlaylist(playlistId, ids);
+        setPlaylist(await getPlaylist(playlistId));
+    };
 
     useEffect(() => {
         let active = true;
         (async () => {
             try {
                 const data = await getPlaylist(playlistId);
+                console.log(data);
                 if (!active) return;
                 setPlaylist(data);
             } catch (err) {
@@ -72,7 +93,7 @@ export default function PlaylistScreen() {
     const renderItem = ({ item }: { item: TrackItem }) => (
         <View style={styles.trackRow}>
             <Image
-                source={{ uri: api.getUri() + item.cover }}
+                source={{ uri: api.getUri() + item.album_art }}
                 style={styles.trackArt}
             />
             <View style={styles.trackInfo}>
@@ -155,25 +176,25 @@ export default function PlaylistScreen() {
 
                 {/* Buttons: Add / Sort / Edit */}
                 <View style={styles.buttonRow}>
-                    <TouchableOpacity style={styles.actionButton}>
-                        <MaterialIcons name="add" size={20} color="#fff" />
-                        <Text style={styles.actionText}>Adicionar</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.actionButton}>
-                        <MaterialIcons name="sort" size={20} color="#fff" />
-                        <Text style={styles.actionText}>Classificar</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.actionButton}>
-                        <MaterialIcons name="edit" size={20} color="#fff" />
-                        <Text style={styles.actionText}>Editar</Text>
-                    </TouchableOpacity>
+                   <TouchableOpacity style={styles.actionButton} onPress={onAddPress}>
+                       <MaterialIcons name="add" size={20} color="#fff" />
+                       <Text style={styles.actionText}>Add</Text>
+                   </TouchableOpacity>
+                   <TouchableOpacity style={styles.actionButton} onPress={onSortPress}>
+                       <MaterialIcons name="sort" size={20} color="#fff" />
+                       <Text style={styles.actionText}>Sort</Text>
+                   </TouchableOpacity>
+                   <TouchableOpacity style={styles.actionButton} onPress={onEditPress}>
+                       <MaterialIcons name="edit" size={20} color="#fff" />
+                       <Text style={styles.actionText}>Edit</Text>
+                   </TouchableOpacity>
                 </View>
             </View>
 
             {/* Track list */}
             <FlatList
                 data={tracks}
-                keyExtractor={item => item.id}
+                keyExtractor={item => item.id.toString()}
                 renderItem={renderItem}
                 contentContainerStyle={styles.list}
                 showsVerticalScrollIndicator={false}
@@ -268,7 +289,6 @@ const styles = StyleSheet.create({
         marginLeft: 6,
         fontSize: 14,
     },
-
     list: {
         paddingHorizontal: 16,
         paddingBottom: 90, // leave room for Player

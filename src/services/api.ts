@@ -4,7 +4,7 @@ import axios from 'axios';
 
 
 const api = axios.create({
-    baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://172.26.224.1:8080', // update for your backend URL
+    baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://192.168.68.108:8080', // update for your backend URL
     headers: {
         'Content-Type': 'application/json',
     },
@@ -138,16 +138,16 @@ export function search(query: string): Promise<SearchResults> {
 }
 
 export interface TrackItem {
-    id:         string;
+    id:         number;
     title:      string;
     artist:     string;
-    cover:      string;
+    album_art:   string;
     video:      boolean;
     downloaded: boolean;
 }
 
 export interface PlaylistDetail {
-    id:          string;
+    id:          number;
     title:       string;
     cover:       string;
     ownerName:   string;
@@ -156,8 +156,28 @@ export interface PlaylistDetail {
     tracks:      TrackItem[];
 }
 
-export function getPlaylist(id: string) {
+export function getPlaylist(id: number) {
     return api.get<PlaylistDetail>(`/playlists/${id}`).then(r => r.data);
+}
+
+// at top with your existing imports
+export function addTrackToPlaylist(plId: number, trackId: number) {
+    return api.post(`/playlists/${plId}/tracks`, { track_id: +trackId });
+}
+
+export function removeTrackFromPlaylist(plId: number, trackId: number) : Promise<any> {
+    return api.delete(`/playlists/${plId}/tracks/${trackId}`);
+}
+
+export function updatePlaylistMeta(
+    plId: number,
+    meta: { title: string; cover?: string }
+) {
+    return api.put(`/playlists/${plId}`, meta);
+}
+
+export function reorderPlaylist(plId: number, trackIds: number[]) {
+    return api.put(`/playlists/${plId}/reorder`, { track_ids: trackIds.map(id => +id) });
 }
 
 export default api;
