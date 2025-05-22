@@ -4,7 +4,7 @@ import axios from 'axios';
 
 
 const api = axios.create({
-    baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://172.26.192.1:8080', // update for your backend URL
+    baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://172.26.224.1:8080', // update for your backend URL
     headers: {
         'Content-Type': 'application/json',
     },
