@@ -13,7 +13,7 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import api, { search, SearchResults, TrackMeta, Artist, Album, PlaylistResponse } from '../services/api';
 import { useAppDispatch } from '../store';
-import { setTrack } from '../store/slices/playerSlice';
+import {setPlaying, setQueue} from '../store/slices/playerSlice';
 import Body from '../components/Body';
 
 const suggestions = [
@@ -81,7 +81,11 @@ export default function SearchScreen({ navigation }: any) {
         return (
             <TouchableOpacity
                 style={styles.resultItem}
-                onPress={() => dispatch(setTrack(item.id))}
+                        onPress={() => {
+                            // queue up just this one track and play it
+                            dispatch(setQueue([item.id]));
+                            dispatch(setPlaying());
+                    }}
             >
                 <Image
                     source={{ uri: api.getUri() + item.album_art }}

@@ -20,7 +20,7 @@ import api, {
     reorderPlaylist, PlaylistDetail, TrackItem,
 } from '../services/api';
 import Player from '../components/Player';
-import { setQueue, setPlaying } from '../store/slices/playerSlice';
+import {setQueue, setPlaying, setIndex} from '../store/slices/playerSlice';
 import { useAppDispatch } from '../store';
 
 export default function PlaylistScreen() {
@@ -35,10 +35,17 @@ export default function PlaylistScreen() {
 
     // handler for the big header play button:
     const onPlayAll = () => {
-       // build an array of IDs
-       const ids = tracks.map(t => t.id);
-       dispatch(setQueue(ids));
-       dispatch(setPlaying());
+        const ids = tracks.map(t => t.id);
+        if (!ids.length) return;
+        dispatch(setQueue(ids));
+        dispatch(setPlaying());
+    };
+
+    const onSelectTrack = (idx: number) => {
+    const ids = tracks.map(t => t.id);
+        dispatch(setQueue(ids));
+        dispatch(setIndex(idx));
+        dispatch(setPlaying());
     };
 
     // 1) Add a track (opens prompt for demo)
@@ -99,10 +106,12 @@ export default function PlaylistScreen() {
     }
 
     const { title, cover, ownerName, ownerImage, duration, tracks } = playlist;
-    const screenWidth = Dimensions.get('window').width;
+    //const screenWidth = Dimensions.get('window').width;
 
-    const renderItem = ({ item }: { item: TrackItem }) => (
-        <View style={styles.trackRow}>
+    const renderItem = ({ item, index }: { item: TrackItem; index: number }) => (
+        <TouchableOpacity
+          onPress={() => onSelectTrack(index)}
+              style={styles.trackRow}>
             <Image
                 source={{ uri: api.getUri() + item.album_art }}
                 style={styles.trackArt}
@@ -136,7 +145,7 @@ export default function PlaylistScreen() {
             <TouchableOpacity>
                 <MaterialIcons name="more-horiz" size={24} color="#888" />
             </TouchableOpacity>
-        </View>
+        </TouchableOpacity>
     );
 
     return (
