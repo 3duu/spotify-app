@@ -20,14 +20,26 @@ import api, {
     reorderPlaylist, PlaylistDetail, TrackItem,
 } from '../services/api';
 import Player from '../components/Player';
+import { setQueue, setPlaying } from '../store/slices/playerSlice';
+import { useAppDispatch } from '../store';
 
 export default function PlaylistScreen() {
+
+    const dispatch = useAppDispatch();
     const route = useRoute<any>();
     const navigation = useNavigation();
     const { playlistId } = route.params as { playlistId: number };
 
     const [playlist, setPlaylist] = useState<PlaylistDetail | null>(null);
     const [loading, setLoading]   = useState(true);
+
+    // handler for the big header play button:
+    const onPlayAll = () => {
+       // build an array of IDs
+       const ids = tracks.map(t => t.id);
+       dispatch(setQueue(ids));
+       dispatch(setPlaying());
+    };
 
     // 1) Add a track (opens prompt for demo)
     const onAddPress = async () => {
@@ -67,7 +79,6 @@ export default function PlaylistScreen() {
         (async () => {
             try {
                 const data = await getPlaylist(playlistId);
-                console.log(data);
                 if (!active) return;
                 setPlaylist(data);
             } catch (err) {
@@ -145,7 +156,7 @@ export default function PlaylistScreen() {
             <View style={styles.coverContainer}>
                 <Image
                     source={{ uri: api.getUri() + cover }}
-                    style={[styles.coverArt, { width: screenWidth - 32, height: screenWidth - 32 }]}
+                    style={[styles.coverArt]}
                 />
 
                 <View style={styles.metaRow}>
@@ -231,15 +242,17 @@ const styles = StyleSheet.create({
         flex: 1,
         textAlign: 'center',
     },
-
     coverContainer: {
-        paddingHorizontal: 16,
-        marginBottom: 16,
+       paddingHorizontal: 16,
+       marginBottom: 16,
+       alignItems: 'center',
     },
     coverArt: {
-        borderRadius: 8,
-        marginBottom: 12,
-        backgroundColor: '#333',
+      width: 200,
+      height: 200,
+      //borderRadius: 8,
+      marginBottom: 12,
+      backgroundColor: '#333',
     },
     metaRow: {
         flexDirection: 'row',
@@ -262,16 +275,14 @@ const styles = StyleSheet.create({
         fontSize: 12,
         marginLeft: 4,
     },
-
     iconRow: {
         flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 12,
+       alignItems: 'center',
+       marginBottom: 12,
     },
     iconBtn: {
         marginRight: 24,
     },
-
     buttonRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -301,7 +312,7 @@ const styles = StyleSheet.create({
     trackArt: {
         width: 48,
         height: 48,
-        borderRadius: 4,
+        //borderRadius: 4,
         marginRight: 12,
         backgroundColor: '#333',
     },
@@ -321,5 +332,11 @@ const styles = StyleSheet.create({
     trackArtist: {
         color: '#aaa',
         fontSize: 12,
+    },
+    playAllBtn: {
+        backgroundColor: '#1DB954',
+        borderRadius: 24,
+        padding: 8,
+        marginLeft: 8,
     },
 });

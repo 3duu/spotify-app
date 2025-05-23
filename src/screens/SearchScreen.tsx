@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
     resultImage: {
         width: 50,
         height: 50,
-        borderRadius: 4,
+        //borderRadius: 4,
         backgroundColor: '#333',
         marginRight: 12,
     },
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
     suggestionImage: {
         width: 120,
         height: 160,
-        borderRadius: 8,
+        //borderRadius: 8,
     },
     suggestionTitle: {
         color: '#fff',
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
     sectionCard: {
         width: '48%',
         height: CARD_SIZE,
-        borderRadius: 8,
+        //borderRadius: 8,
         marginBottom: 16,
         justifyContent: 'center',
         padding: 12,
@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
         right: 8,
         width: CARD_SIZE * 0.6,
         height: CARD_SIZE * 0.6,
-        borderRadius: 4,
+        //borderRadius: 4,
     },
     searchIconButton: {
         marginLeft: 8,              // space between input and icon

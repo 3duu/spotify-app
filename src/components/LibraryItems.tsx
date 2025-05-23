@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     cardImage: {
         width: CARD_SIZE,
         height: CARD_SIZE,
-        borderRadius: 8,
+        //borderRadius: 8,
         backgroundColor: '#333'
     },
     cardTitle: {

@@ -162,11 +162,12 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(5, 44, 44, 0.5)',
         paddingHorizontal: 16,
         height: PLAYER_HEIGHT,
+        borderRadius: 6
     },
     art: {
         width: 50,
         height: 50,
-        borderRadius: 4,
+        //borderRadius: 4,
         marginRight: 12,
     },
     artPlaceholder: {

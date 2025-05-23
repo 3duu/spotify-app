@@ -155,11 +155,11 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between'
     },
     card: { width: '48%', marginBottom: 16 },
-    cardImage: { width: '100%', aspectRatio: 1, borderRadius: 8 },
+    cardImage: { width: '100%', aspectRatio: 1 },
     placeholder: {
         width: '100%',
         aspectRatio: 1,
-        borderRadius: 8,
+        //borderRadius: 8,
         backgroundColor: '#333'
     },
     cardTitle: { color: '#fff', marginTop: 8, fontSize: 12 },

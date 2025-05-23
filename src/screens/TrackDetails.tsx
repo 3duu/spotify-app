@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
         alignItems:'center'
     },
     albumArt: {
-        width:300, height:300, borderRadius:8, marginBottom:16
+        width:300, height:300, marginBottom:16
     },
     switchButton: {
         flexDirection:'row',

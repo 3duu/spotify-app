@@ -66,7 +66,7 @@ export function getCurrentUser() {
 }
 
 export interface TrackMeta {
-    id:        string;
+    id:        number;
     title:     string;
     artist:    string;
     artist_id: number;
