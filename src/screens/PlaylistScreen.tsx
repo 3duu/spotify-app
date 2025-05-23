@@ -199,6 +199,10 @@ export default function PlaylistScreen() {
                        <MaterialIcons name="edit" size={20} color="#fff" />
                        <Text style={styles.actionText}>Edit</Text>
                    </TouchableOpacity>
+                    {/* big play-all button */}
+                    <TouchableOpacity style={styles.playAllBtn} onPress={onPlayAll}>
+                        <MaterialIcons name="play-arrow" size={32} color="#fff" />
+                    </TouchableOpacity>
                 </View>
             </View>
 
