@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -10,7 +10,8 @@ import TrackDetails from './src/screens/TrackDetails';
 import SearchScreen from './src/screens/SearchScreen';
 import {Provider} from "react-redux";
 import store from "./src/store";
-import PlaylistScreen from "./src/screens/PlaylistScreen"; // placeholder or implement accordingly
+import PlaylistScreen from "./src/screens/PlaylistScreen";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export type RootStackParamList = {
     Home: undefined;
@@ -48,41 +49,31 @@ const Tab = createBottomTabNavigator();
 
 export default function App() {
 
-    /*useEffect(() => {
-        Audio.setAudioModeAsync({
-            allowsRecordingIOS: false,
-            playsInSilentModeIOS: true,
-            interruptionModeIOS: InterruptionModeIOS.DoNotMix,
-            interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
-            shouldDuckAndroid: true,
-            staysActiveInBackground: true,
-            playThroughEarpieceAndroid: false,
-        }).catch(console.warn);
-    }, []);*/
-
     return (
-        <Provider store={store}>
-            <NavigationContainer>
-                <Tab.Navigator
-                    screenOptions={({ route }) => ({
-                        headerShown: false,
-                        tabBarStyle: { backgroundColor: '#000' },
-                        tabBarActiveTintColor: '#1DB954',
-                        tabBarInactiveTintColor: '#888',
-                        tabBarIcon: ({ color, size }) => {
-                            let iconName: keyof typeof MaterialIcons.glyphMap;
-                            if (route.name === 'HomeTab') iconName = 'home';
-                            else if (route.name === 'SearchTab') iconName = 'search';
-                            else iconName = 'library-music';
-                            return <MaterialIcons name={iconName} size={size} color={color} />;
-                        }
-                    })}
-                >
-                    <Tab.Screen name="HomeTab" component={HomeStackScreen} options={{ title: 'Home' }} />
-                    <Tab.Screen name="SearchTab" component={SearchScreen} options={{ title: 'Search' }} />
-                    <Tab.Screen name="LibraryTab" component={LibraryStackScreen} options={{ title: 'Your Library' }} />
-                </Tab.Navigator>
-            </NavigationContainer>
-        </Provider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+            <Provider store={store}>
+                <NavigationContainer>
+                    <Tab.Navigator
+                        screenOptions={({ route }) => ({
+                            headerShown: false,
+                            tabBarStyle: { backgroundColor: '#000' },
+                            tabBarActiveTintColor: '#1DB954',
+                            tabBarInactiveTintColor: '#888',
+                            tabBarIcon: ({ color, size }) => {
+                                let iconName: keyof typeof MaterialIcons.glyphMap;
+                                if (route.name === 'HomeTab') iconName = 'home';
+                                else if (route.name === 'SearchTab') iconName = 'search';
+                                else iconName = 'library-music';
+                                return <MaterialIcons name={iconName} size={size} color={color} />;
+                            }
+                        })}
+                    >
+                        <Tab.Screen name="HomeTab" component={HomeStackScreen} options={{ title: 'Home' }} />
+                        <Tab.Screen name="SearchTab" component={SearchScreen} options={{ title: 'Search' }} />
+                        <Tab.Screen name="LibraryTab" component={LibraryStackScreen} options={{ title: 'Your Library' }} />
+                    </Tab.Navigator>
+                </NavigationContainer>
+            </Provider>
+        </GestureHandlerRootView>
     );
 }

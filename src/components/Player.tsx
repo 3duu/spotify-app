@@ -14,6 +14,13 @@ import { setPlaying, setPaused } from '../store/slices/playerSlice';
 import api, { TrackMeta } from '../services/api';
 import { useNavigation } from '@react-navigation/native';
 
+function hexToRgba(hex: string, alpha: number) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r},${g},${b},${alpha})`;
+}
+
 export default function Player() {
     const dispatch = useAppDispatch();
     const { currentTrackId, isPlaying } = useAppSelector(s => s.player);
@@ -84,6 +91,9 @@ export default function Player() {
 
     const ratio = duration > 0 ? Math.min(position / duration, 1) : 0;
 
+    const bg = track?.color ?? '#000';
+    const bg50 = hexToRgba(bg, 0.5);
+
     return (
         <TouchableOpacity
             activeOpacity={0.9}
@@ -97,7 +107,7 @@ export default function Player() {
             }}
         >
             <View style={styles.wrapper}>
-                <View style={[styles.container, { backgroundColor: track?.color }]}>
+                <View style={[styles.container, { backgroundColor: bg50 }]}>
                 {track ? (
                         <Image
                             source={{ uri: api.getUri() + track.album_art }}
@@ -162,7 +172,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(5, 44, 44, 0.5)',
         paddingHorizontal: 16,
         height: PLAYER_HEIGHT,
-        borderRadius: 6
+        borderRadius: 8
     },
     art: {
         width: 50,

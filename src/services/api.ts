@@ -1,10 +1,7 @@
 import axios from 'axios';
 
-
-
-
 const api = axios.create({
-    baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://192.168.68.108:8080', // update for your backend URL
+    baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://192.168.68.107:8080', // update for your backend URL
     headers: {
         'Content-Type': 'application/json',
     },
@@ -70,6 +67,7 @@ export interface TrackMeta {
     title:     string;
     artist:    string;
     artist_id: number;
+    album_id: number;
     audio_url: string;
     album_art?:string;
     duration:     number;

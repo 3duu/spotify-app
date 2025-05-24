@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {ComponentProps, useEffect, useState} from 'react';
 import {
     View,
     Text,
@@ -7,12 +7,22 @@ import {
     ActivityIndicator,
     Image,
     SafeAreaView,
-    ScrollView, Platform
+    ScrollView, Platform, Share
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { MaterialIcons, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import api, { getTrack, TrackMeta } from '../services/api';
 import { player } from '../services/audioPlayer';
+import { FlatList } from 'react-native-gesture-handler';
+import RNModal from 'react-native-modal';
+
+type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
+
+interface MenuOption {
+    icon: MaterialIconName;
+    label: string;
+    onPress: () => void;
+}
 
 export default function TrackDetails({ navigation, route }: any) {
     const { id } = route.params as { id: string };
@@ -26,6 +36,32 @@ export default function TrackDetails({ navigation, route }: any) {
     const [deviceName, setDeviceName] = useState('Phone speaker');
     const [shuffle,  setShuffle]  = useState(false);
     const [repeat,   setRepeat]   = useState(false);
+
+     // ─── menu state ───────────────────────────
+    const [menuVisible, setMenuVisible] = useState(false);
+
+    // stub handlers – wire these up to real logic as needed:
+    const onAddToPlaylist      = () => { /* TODO */ setMenuVisible(false); };
+    const onRemoveFromPlaylist = () => { /* TODO */ setMenuVisible(false); };
+    const onAddToQueue         = () => { /* TODO */ setMenuVisible(false); };
+    const onOpenQueue          = () => { /* TODO */ setMenuVisible(false); };
+    const onShareTrack         = async () => {
+        try {
+             await Share.share({
+                   message: `${track?.title} by ${track?.artist} – ${api.getUri()}/tracks/${id}`
+             });
+    } catch {}
+    setMenuVisible(false);
+    };
+    const onStartJam           = () => { /* TODO */ setMenuVisible(false); };
+    const onGoToRadio          = () => { /* TODO */ setMenuVisible(false); };
+    const onGoToAlbum          = () => navigation.navigate('Album', { id: track?.album_id }) && setMenuVisible(false);
+    const onGoToArtist         = () => navigation.navigate('Artist', { id: track?.artist_id }) && setMenuVisible(false);
+    const onGoToShows          = () => { /* TODO */ setMenuVisible(false); };
+    const onReport             = () => { /* TODO */ setMenuVisible(false); };
+    const onViewCredits        = () => { /* TODO */ setMenuVisible(false); };
+    const onTimer              = () => { /* TODO */ setMenuVisible(false); };
+    const onShowSpotifyCode    = () => { /* TODO */ setMenuVisible(false); };
 
     // handlers
     const onShufflePress = () => setShuffle(s => !s);
@@ -108,6 +144,25 @@ export default function TrackDetails({ navigation, route }: any) {
         );
     }
 
+    {/* menu options */}
+
+    const menuItems: MenuOption[] = [
+        { icon: 'playlist-add',            label: 'Add to Playlist',             onPress: onAddToPlaylist },
+        { icon: 'remove-circle-outline',   label: 'Remove from Playlist',        onPress: onRemoveFromPlaylist },
+        { icon: 'playlist-play',           label: 'Add to Queue',                onPress: onAddToQueue },
+        { icon: 'queue-music',             label: 'Open Queue',                  onPress: onOpenQueue },
+        { icon: 'share',                   label: 'Share',                       onPress: onShareTrack },
+        //{ icon: 'headphones',              label: 'Start Jam',                   onPress: onStartJam },
+        { icon: 'radio',                   label: 'Go to Radio',                 onPress: onGoToRadio },
+        { icon: 'album',                   label: 'Go to Album',                 onPress: onGoToAlbum },
+        { icon: 'person',                  label: 'Go to Artist',                onPress: onGoToArtist },
+        //{ icon: 'mic',                     label: "Go to Artist's Shows",       onPress: onGoToShows },
+        //{ icon: 'report',                  label: 'Report',                      onPress: onReport },
+        //{ icon: 'info',                    label: 'View Track Credits',          onPress: onViewCredits },
+        //{ icon: 'timer',                   label: 'Sleep Timer',                 onPress: onTimer },
+        //{ icon: 'qr-code',                 label: 'Show Spotify Code',           onPress: onShowSpotifyCode },
+    ];
+
     return (
         <SafeAreaView style={[styles.safe, { backgroundColor: track.color }]}>
             {/* Header */}
@@ -118,7 +173,7 @@ export default function TrackDetails({ navigation, route }: any) {
                 <Text style={styles.headerTitle} numberOfLines={1}>
                     {track.title}
                 </Text>
-                <TouchableOpacity onPress={() => {/* overflow */}}>
+                <TouchableOpacity onPress={() => setMenuVisible(true)}>
                     <MaterialIcons name="more-vert" size={24} color="#fff" />
                 </TouchableOpacity>
             </View>
@@ -217,6 +272,45 @@ export default function TrackDetails({ navigation, route }: any) {
                     <Text style={styles.lyricsText}>Lyrics</Text>
                 </TouchableOpacity>*/}
             </ScrollView>
+
+
+             {/* ── MENU BOTTOM SHEET ─────────────────────────── */}
+             <RNModal
+               isVisible={menuVisible}
+               onBackdropPress={() => setMenuVisible(false)}
+               style={styles.modal}
+               swipeDirection="down"
+               onSwipeComplete={() => setMenuVisible(false)}
+             >
+               <View style={styles.menuContainer}>
+                 {/* header drag handle */}
+                 <View style={styles.menuHandle}/>
+                 {/* track info */}
+                 <View style={styles.menuHeader}>
+                   <Image
+                     source={{ uri: api.getUri() + track.album_art }}
+                     style={styles.menuArt}
+                   />
+                   <View style={{marginLeft:12, flex:1}}>
+                     <Text style={styles.menuTitle} numberOfLines={1}>{track.title}</Text>
+                     <Text style={styles.menuSubtitle}>{track.artist}</Text>
+                   </View>
+                 </View>
+
+
+                <FlatList
+                      data={menuItems}
+                   keyExtractor={(item) => item.label}
+                   renderItem={({item}) => (
+                     <TouchableOpacity style={styles.menuItem} onPress={item.onPress}>
+                       <MaterialIcons name={item.icon} size={20} color="#fff" />
+                       <Text style={styles.menuLabel}>{item.label}</Text>
+                     </TouchableOpacity>
+                   )}
+                />
+               </View>
+             </RNModal>
+
         </SafeAreaView>
     );
 }
@@ -308,7 +402,6 @@ const styles = StyleSheet.create({
     bottomIcon: {
         marginLeft:16
     },
-
     lyricsButton: {
         flexDirection:'row',
         alignItems:'center',
@@ -320,5 +413,53 @@ const styles = StyleSheet.create({
     },
     lyricsText: {
         color:'#fff', fontSize:14, marginLeft:8
-    }
+    },
+    menuHandle: {
+        width: 40,
+        height: 4,
+        backgroundColor: '#444',
+        borderRadius: 2,
+        alignSelf: 'center',
+        marginBottom: 12,
+    },
+    menuHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    menuArt: {
+        width: 48,
+        height: 48,
+        borderRadius: 4,
+        backgroundColor: '#333',
+    },
+    menuTitle: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    menuSubtitle: {
+        color: '#aaa',
+        fontSize: 12,
+        marginTop: 2,
+    },
+    menuItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 14,
+    },
+    menuLabel: {
+        color: '#fff',
+        fontSize: 14,
+        marginLeft: 16,
+    },
+    modal: { justifyContent: 'flex-end', margin:0 },
+    menuContainer: {
+        backgroundColor: '#121212',
+        paddingTop: 8,
+        paddingHorizontal: 16,
+        paddingBottom: 32,
+        borderTopLeftRadius: 12,
+        borderTopRightRadius: 12,
+    },
 });
