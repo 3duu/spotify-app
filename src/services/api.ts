@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://192.168.68.107:8080', // update for your backend URL
+    baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://192.168.68.105:8080', // update for your backend URL
     headers: {
         'Content-Type': 'application/json',
     },
@@ -74,7 +74,7 @@ export interface TrackMeta {
     color:     string;
 }
 
-export function getTrack(id: string): Promise<TrackMeta> {
+export function getTrack(id: number): Promise<TrackMeta> {
     return api.get<TrackMeta>(`/tracks/${id}`).then(res => res.data);
 }
 

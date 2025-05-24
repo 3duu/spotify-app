@@ -15,6 +15,8 @@ import api, { getTrack, TrackMeta } from '../services/api';
 import { player } from '../services/audioPlayer';
 import { FlatList } from 'react-native-gesture-handler';
 import RNModal from 'react-native-modal';
+import {useAppDispatch, useAppSelector} from "../store";
+import {setQueue} from "../store/slices/playerSlice";
 
 type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
 
@@ -25,7 +27,7 @@ interface MenuOption {
 }
 
 export default function TrackDetails({ navigation, route }: any) {
-    const { id } = route.params as { id: string };
+    const { id } = route.params as { id: number };
 
     // ── 1) All your useState hooks first ─────────────────────────
     const [track,    setTrack]    = useState<TrackMeta | null>(null);
@@ -36,6 +38,8 @@ export default function TrackDetails({ navigation, route }: any) {
     const [deviceName, setDeviceName] = useState('Phone speaker');
     const [shuffle,  setShuffle]  = useState(false);
     const [repeat,   setRepeat]   = useState(false);
+    const dispatch = useAppDispatch();
+    const queue    = useAppSelector(s => s.player.queue);
 
      // ─── menu state ───────────────────────────
     const [menuVisible, setMenuVisible] = useState(false);
@@ -43,7 +47,11 @@ export default function TrackDetails({ navigation, route }: any) {
     // stub handlers – wire these up to real logic as needed:
     const onAddToPlaylist      = () => { /* TODO */ setMenuVisible(false); };
     const onRemoveFromPlaylist = () => { /* TODO */ setMenuVisible(false); };
-    const onAddToQueue         = () => { /* TODO */ setMenuVisible(false); };
+    const onAddToQueue = () => {
+        dispatch(setQueue([...queue, id]));
+        //dispatch(setPlaying());
+        setMenuVisible(false);
+    };
     const onOpenQueue          = () => { /* TODO */ setMenuVisible(false); };
     const onShareTrack         = async () => {
         try {
@@ -53,15 +61,8 @@ export default function TrackDetails({ navigation, route }: any) {
     } catch {}
     setMenuVisible(false);
     };
-    const onStartJam           = () => { /* TODO */ setMenuVisible(false); };
-    const onGoToRadio          = () => { /* TODO */ setMenuVisible(false); };
     const onGoToAlbum          = () => navigation.navigate('Album', { id: track?.album_id }) && setMenuVisible(false);
     const onGoToArtist         = () => navigation.navigate('Artist', { id: track?.artist_id }) && setMenuVisible(false);
-    const onGoToShows          = () => { /* TODO */ setMenuVisible(false); };
-    const onReport             = () => { /* TODO */ setMenuVisible(false); };
-    const onViewCredits        = () => { /* TODO */ setMenuVisible(false); };
-    const onTimer              = () => { /* TODO */ setMenuVisible(false); };
-    const onShowSpotifyCode    = () => { /* TODO */ setMenuVisible(false); };
 
     // handlers
     const onShufflePress = () => setShuffle(s => !s);
@@ -152,15 +153,8 @@ export default function TrackDetails({ navigation, route }: any) {
         { icon: 'playlist-play',           label: 'Add to Queue',                onPress: onAddToQueue },
         { icon: 'queue-music',             label: 'Open Queue',                  onPress: onOpenQueue },
         { icon: 'share',                   label: 'Share',                       onPress: onShareTrack },
-        //{ icon: 'headphones',              label: 'Start Jam',                   onPress: onStartJam },
-        { icon: 'radio',                   label: 'Go to Radio',                 onPress: onGoToRadio },
         { icon: 'album',                   label: 'Go to Album',                 onPress: onGoToAlbum },
         { icon: 'person',                  label: 'Go to Artist',                onPress: onGoToArtist },
-        //{ icon: 'mic',                     label: "Go to Artist's Shows",       onPress: onGoToShows },
-        //{ icon: 'report',                  label: 'Report',                      onPress: onReport },
-        //{ icon: 'info',                    label: 'View Track Credits',          onPress: onViewCredits },
-        //{ icon: 'timer',                   label: 'Sleep Timer',                 onPress: onTimer },
-        //{ icon: 'qr-code',                 label: 'Show Spotify Code',           onPress: onShowSpotifyCode },
     ];
 
     return (
