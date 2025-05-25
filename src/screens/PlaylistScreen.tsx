@@ -22,12 +22,14 @@ import Player from '../components/Player';
 import {setQueue, setPlaying, setIndex} from '../store/slices/playerSlice';
 import { useAppDispatch } from '../store';
 import TrackMenu from "../components/TrackMenu";
+import type {NativeStackNavigationProp} from "@react-navigation/native-stack";
+import {RootStackParamList} from "../../App";
 
 export default function PlaylistScreen() {
 
     const dispatch = useAppDispatch();
     const route = useRoute<any>();
-    const navigation = useNavigation();
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const { playlistId } = route.params as { playlistId: number };
 
     const [playlist, setPlaylist] = useState<PlaylistDetail | null>(null);
@@ -67,12 +69,9 @@ export default function PlaylistScreen() {
         setPlaylist(await getPlaylist(playlistId));
     };
 
-    // 3) Rename / Edit meta
-    const onEditPress = async () => {
-        const newTitle = prompt('New playlist name?', playlist!.title);
-        if (!newTitle) return;
-        await updatePlaylistMeta(playlistId, { title: newTitle });
-        setPlaylist(await getPlaylist(playlistId));
+  // 3) Rename / Edit meta
+    const onEditPress = () => {
+        navigation.navigate('EditPlaylist', { playlistId });
     };
 
 // 4) Reorder (demo: reverse order)

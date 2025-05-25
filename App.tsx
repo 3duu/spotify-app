@@ -19,6 +19,7 @@ import AddToPlaylistScreen   from './src/screens/AddToPlaylistScreen';
 import CreatePlaylistScreen  from './src/screens/CreatePlaylistScreen';
 
 import store from './src/store';
+import EditPlaylistScreen from "./src/screens/EditPlaylistScreen";
 
 export type RootStackParamList = {
     Main:                  undefined;
@@ -26,6 +27,7 @@ export type RootStackParamList = {
     Playlist:              { playlistId: number, title?: string };
     AddToPlaylist:         { trackId: number };
     CreatePlaylist:        { trackId?: number };
+    EditPlaylist: { playlistId: number };
 };
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
@@ -107,6 +109,11 @@ export default function App() {
                                 component={TrackDetails}
                                 options={{ headerShown: true, title: 'Now Playing' }}
                             />
+                          <RootStack.Screen
+                            name="EditPlaylist"
+                            component={EditPlaylistScreen}
+                            options={{ headerShown:false }}
+                          />
                         </RootStack.Group>
                     </RootStack.Navigator>
                 </NavigationContainer>

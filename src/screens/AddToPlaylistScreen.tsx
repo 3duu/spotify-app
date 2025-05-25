@@ -9,7 +9,7 @@ import {
     Image,
     TouchableOpacity,
     ActivityIndicator,
-    Alert, Platform, StatusBar
+    Platform, StatusBar
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import api from '../services/api';
@@ -17,6 +17,7 @@ import type { PlaylistResponse } from '../services/api';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {RootStackParamList} from "../../App";
+import Toast from "react-native-toast-message";
 
 type AddNavProp = NativeStackNavigationProp<RootStackParamList, 'AddToPlaylist'>;
 
@@ -40,7 +41,7 @@ export default function AddToPlaylistScreen() {
             })
             .catch(err => {
                 console.error(err);
-                Alert.alert('Error loading playlists');
+                Toast.show({type: 'error', text1: 'Error', text2: 'Error loading playlists'});
             })
             .finally(() => setLoading(false));
     }, []);
@@ -67,11 +68,11 @@ export default function AddToPlaylistScreen() {
             for (let pid of selectedIds) {
                 await api.post(`/playlists/${pid}/tracks`, { track_id: +trackId });
             }
-            Alert.alert('Added to playlist' + (selectedIds.size>1?'s':''));
+            Toast.show({type: 'success', text1: 'Success', text2: `Added to ${selectedIds.size} playlist${selectedIds.size > 1 ? 's' : ''}`});
             navigation.goBack();
         } catch (err) {
             console.error(err);
-            Alert.alert('Error adding to playlists');
+            Toast.show({type: 'error', text1: 'Error', text2: 'Failed to add track to playlists'});
         }
     }
 
