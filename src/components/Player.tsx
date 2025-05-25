@@ -40,7 +40,6 @@ export default function Player() {
             setLoading(true);
 
             // release any previous media
-            //player?.release();
             player?.pause();
 
             if (!currentTrackId) {
@@ -54,7 +53,6 @@ export default function Player() {
             if (!active) return;
             setTrack(data);
             setDuration(data.duration);
-            console.log(data);
 
             // load the new source onto the same player
             player.replace({ uri: api.getUri() + data.audio_url });

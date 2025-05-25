@@ -27,13 +27,6 @@ export default function HomeItems() {
         getRecentPlaylists(1)
             .then((recent) => {
                 if (recent.length > 0) {
-                    // Map the API’s response shape into our Playlist type
-                    /*const mapped = recent.map(r => ({
-                        id: r.id,
-                        title: r.title,
-                        image: r.icon,
-                        lastUpdate: r.last_updated,
-                    }));*/
                     setPlaylists(recent);
                 } else {
                     // 2) If no recents, load all playlists
@@ -84,7 +77,7 @@ export default function HomeItems() {
                              <TouchableOpacity
                                key={item.id}
                                style={styles.card}
-                               onPress={() => navigation.navigate('Playlist', { playlistId: item.id, name: item.title })}
+                               onPress={() => navigation.navigate('Playlist', { id: item.id, title: item.title })}
                              >
                                 {item.cover ? (
                                     <Image source={{ uri: api.getUri() + item.cover }} style={styles.cardImage} />

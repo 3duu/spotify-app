@@ -9,7 +9,7 @@ import {
     Image,
     TouchableOpacity,
     ActivityIndicator,
-    Alert
+    Alert, Platform, StatusBar
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import api from '../services/api';
@@ -154,6 +154,7 @@ const styles = StyleSheet.create({
     safe: {
         flex: 1,
         backgroundColor: '#121212',
+        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     },
     header: {
         flexDirection: 'row',

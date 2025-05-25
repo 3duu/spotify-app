@@ -48,7 +48,12 @@ export default function TrackDetails({ navigation, route }: any) {
     const [menuVisible, setMenuVisible] = useState(false);
 
     // stub handlers – wire these up to real logic as needed:
-    const onAddToPlaylist      = () => { /* TODO */ setMenuVisible(false); };
+    const onAddToPlaylist = () => {
+    // Navigate into the `AddToPlaylist` modal, passing this track’s ID
+       navigation.navigate('AddToPlaylist', { trackId: id });
+    // then close the menu sheet
+       setMenuVisible(false);
+    };
     const onRemoveFromPlaylist = () => { /* TODO */ setMenuVisible(false); };
     const onAddToQueue = () => {
         dispatch(setQueue([...queue, id]));

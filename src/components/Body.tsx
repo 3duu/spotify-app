@@ -3,8 +3,6 @@ import { View, StyleSheet } from 'react-native';
 import Header from './Header';
 import Player from './Player';
 import { JSX } from 'react/jsx-runtime';
-import store from "../store";
-import {Provider} from "react-redux";
 
 interface BodyProps {
     children: ReactNode;

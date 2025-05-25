@@ -8,13 +8,14 @@ import {
     StyleSheet,
     KeyboardAvoidingView,
     Platform,
-    Alert
+    StatusBar
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import api from '../services/api';
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {RootStackParamList} from "../../App";
+import Toast from "react-native-toast-message";
 
 type ParamList = {
     CreatePlaylist: { trackId?: string };
@@ -33,24 +34,23 @@ export default function CreatePlaylistScreen() {
 
     const onCreate = async () => {
         if (!title.trim()) {
-            return Alert.alert('Please enter a playlist name');
+            return Toast.show({type: 'error', text1: 'Oops!', text2: 'Please enter a name'});
         }
 
         try {
-            // 1) create the playlist
             const resp = await api.post('/playlists', { title: title.trim() });
             const newPlaylist = resp.data as { id: number; title: string; cover: string };
 
-            // 2) if we came here with a trackId, immediately add that track
             if (trackId) {
                 await api.post(`/playlists/${newPlaylist.id}/tracks`, { track_id: +trackId });
             }
 
-            // 3) navigate into the newly created playlist screen
-            navigation.replace('Playlist', { id: newPlaylist.id.toString() });
+            navigation.replace('Playlist', { id: newPlaylist.id});
         } catch (err) {
             console.error(err);
-            Alert.alert('Error', 'Could not create playlist. Please try again.');
+            Toast.show({type: 'error',
+                text1: 'Oops!',
+                text2: 'Could not create playlist. Please try again.'});
         }
     };
 
@@ -97,6 +97,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#121212',
         paddingHorizontal: 24,
         justifyContent: 'center',
+        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     },
     header: {
         position: 'absolute',

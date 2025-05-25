@@ -1,4 +1,3 @@
-// App.tsx
 import React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
@@ -21,22 +20,17 @@ import CreatePlaylistScreen  from './src/screens/CreatePlaylistScreen';
 
 import store from './src/store';
 
-//
-// 1) Define your root‐level params (Main tabs + modals):
-//
 export type RootStackParamList = {
     Main:                  undefined;
-    TrackDetails:          { id: number; playlistId?: number };
-    Playlist:              { id: number };
+    TrackDetails:          { id: number; playlistId?: number, origin : string };
+    Playlist:              { id: number, title?: string };
     AddToPlaylist:         { trackId: number };
     CreatePlaylist:        { trackId?: number };
 };
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 
-//
-// 2) Define your bottom‐tab params (just names, no extra params):
-//
+
 export type MainTabParamList = {
     HomeTab:    undefined;
     SearchTab:  undefined;
@@ -47,9 +41,7 @@ export type MainTabParamList = {
 };
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
-//
-// 3) Tab navigator component
-//
+
 function MainTabs() {
     return (
         <Tab.Navigator
