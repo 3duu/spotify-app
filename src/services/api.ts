@@ -9,18 +9,9 @@ const api = axios.create({
 });
 
 // Fetch a list of recent tracks (demo: tracks 1–10)
-export async function getRecentTracks() {
-    const requests = Array.from({ length: 10 }, (_, i) =>
-        api.get(`/tracks/${i + 1}`).then(res => ({
-            id: res.data.id,
-            name: res.data.title,
-            artist: res.data.artist,
-            image: '',
-            duration: res.data.duration,
-            audio_url: res.data.audio_url,
-        }))
-    );
-    return Promise.all(requests);
+export async function getRecentTracks() : Promise<TrackMeta[]> {
+        return api.get<TrackMeta[]>(`/tracks/1`)
+        .then((res) => res.data);
 }
 
 // fetch up to 10 of the user's most recently updated playlists
@@ -46,7 +37,7 @@ export interface PlaylistResponse {
 }
 
 // fetch *all* playlists for the current user
-export function getUserPlaylists() {
+export async function getUserPlaylists() {
     return api
         .get<PlaylistResponse[]>('/me/playlists') // adjust path if needed
         .then((res) => res.data);
@@ -74,8 +65,15 @@ export interface TrackMeta {
     color:     string;
 }
 
-export function getTrack(id: number): Promise<TrackMeta> {
-    return api.get<TrackMeta>(`/tracks/${id}`).then(res => res.data);
+export async function getTrack(id: number, opts?: { origin?: string; originId?: string | number } ): Promise<TrackMeta> {
+
+    const params = new URLSearchParams();
+    if (opts?.origin) {
+        params.set('origin', opts.origin);
+        if (opts.originId != null) params.set('originId', opts.originId.toString());
+    }
+
+    return api.get<TrackMeta>(`/tracks/${id}`, {params}).then(res => res.data);
 }
 
 export interface LibraryData {
@@ -177,5 +175,17 @@ export function updatePlaylistMeta(
 export function reorderPlaylist(plId: number, trackIds: number[]) {
     return api.put(`/playlists/${plId}/reorder`, { track_ids: trackIds.map(id => +id) });
 }
+
+export type RootStackParamList = {
+    // … other screens …
+    TrackDetails: {
+        id: string;
+        origin?: 'playlist'|'album'|'artist'|'search'|'home';
+        originId?: string | number;
+    };
+    // …
+};
+
+
 
 export default api;

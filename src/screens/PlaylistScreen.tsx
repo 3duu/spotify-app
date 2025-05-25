@@ -7,8 +7,7 @@ import {
     Image,
     TouchableOpacity,
     FlatList,
-    ActivityIndicator,
-    Dimensions,
+    ActivityIndicator
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';

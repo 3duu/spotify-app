@@ -26,8 +26,8 @@ import store from './src/store';
 //
 export type RootStackParamList = {
     Main:                  undefined;
-    TrackDetails:          { id: string; playlistId?: number };
-    Playlist:              { id: string };
+    TrackDetails:          { id: number; playlistId?: number };
+    Playlist:              { id: number };
     AddToPlaylist:         { trackId: number };
     CreatePlaylist:        { trackId?: number };
 };
@@ -41,6 +41,9 @@ export type MainTabParamList = {
     HomeTab:    undefined;
     SearchTab:  undefined;
     LibraryTab: undefined;
+    TrackDetailsTab: { id: number; playlistId?: number };
+    PlaylistTab: { id: number };
+
 };
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -88,11 +91,6 @@ export default function App() {
                         {/* These will slide up as modals */}
                         <RootStack.Group screenOptions={{ presentation: 'modal' }}>
                             <RootStack.Screen
-                                name="TrackDetails"
-                                component={TrackDetails}
-                                options={{ headerShown: true, title: 'Now Playing' }}
-                            />
-                            <RootStack.Screen
                                 name="Playlist"
                                 component={PlaylistScreen}
                                 options={{ headerShown: true, title: 'Playlist' }}
@@ -111,6 +109,11 @@ export default function App() {
                                 options={{
                                     headerShown: false,
                                 }}
+                            />
+                            <RootStack.Screen
+                                name="TrackDetails"
+                                component={TrackDetails}
+                                options={{ headerShown: true, title: 'Now Playing' }}
                             />
                         </RootStack.Group>
                     </RootStack.Navigator>

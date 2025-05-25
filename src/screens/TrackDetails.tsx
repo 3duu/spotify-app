@@ -17,8 +17,11 @@ import { FlatList } from 'react-native-gesture-handler';
 import RNModal from 'react-native-modal';
 import {useAppDispatch, useAppSelector} from "../store";
 import {setQueue} from "../store/slices/playerSlice";
+import {NativeStackScreenProps} from "@react-navigation/native-stack";
+import {RootStackParamList} from "../../App";
 
 type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
+type Props = NativeStackScreenProps<RootStackParamList, 'TrackDetails'>;
 
 interface MenuOption {
     icon: MaterialIconName;

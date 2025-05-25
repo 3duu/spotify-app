@@ -11,7 +11,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { player } from '../services/audioPlayer';
 import { useAppDispatch, useAppSelector } from '../store';
 import { setPlaying, setPaused } from '../store/slices/playerSlice';
-import api, { TrackMeta } from '../services/api';
+import api, {getTrack, TrackMeta} from '../services/api';
 import { useNavigation } from '@react-navigation/native';
 
 function hexToRgba(hex: string, alpha: number) {
@@ -50,10 +50,11 @@ export default function Player() {
             }
 
             // fetch metadata
-            const { data } = await api.get<TrackMeta>(`/tracks/${currentTrackId}`);
+            const  data  = await getTrack(currentTrackId, { });
             if (!active) return;
             setTrack(data);
             setDuration(data.duration);
+            console.log(data);
 
             // load the new source onto the same player
             player.replace({ uri: api.getUri() + data.audio_url });
@@ -92,17 +93,14 @@ export default function Player() {
     const ratio = duration > 0 ? Math.min(position / duration, 1) : 0;
 
     const bg = track?.color ?? '#000';
-    const bg50 = hexToRgba(bg, 0.5);
+    const bg50 = hexToRgba(bg, 0.4);
 
     return (
         <TouchableOpacity
             activeOpacity={0.9}
             onPress={() => {
                 if (currentTrackId) {
-                    navigation.navigate('HomeTab', {
-                        screen: 'TrackDetails',
-                        params: { id: currentTrackId },
-                    });
+                    navigation.navigate('TrackDetails', { id: currentTrackId });
                 }
             }}
         >
