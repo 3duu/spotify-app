@@ -21,6 +21,7 @@ import api, {
 import Player from '../components/Player';
 import {setQueue, setPlaying, setIndex} from '../store/slices/playerSlice';
 import { useAppDispatch } from '../store';
+import TrackMenu from "../components/TrackMenu";
 
 export default function PlaylistScreen() {
 
@@ -31,6 +32,8 @@ export default function PlaylistScreen() {
 
     const [playlist, setPlaylist] = useState<PlaylistDetail | null>(null);
     const [loading, setLoading]   = useState(true);
+    const [menuVisible, setMenuVisible] = useState(false);
+    const [selectedTrack, setSelectedTrack] = useState<TrackItem | null>(null);
 
     // handler for the big header play button:
     const onPlayAll = () => {
@@ -141,7 +144,10 @@ export default function PlaylistScreen() {
                     </Text>
                 </View>
             </View>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => {
+                setSelectedTrack(item);
+                setMenuVisible(true);
+            }}>
                 <MaterialIcons name="more-horiz" size={24} color="#888" />
             </TouchableOpacity>
         </TouchableOpacity>
@@ -222,6 +228,22 @@ export default function PlaylistScreen() {
                 contentContainerStyle={styles.list}
                 showsVerticalScrollIndicator={false}
             />
+
+            {selectedTrack && (
+                <TrackMenu
+                    isVisible={menuVisible}
+                    onClose={() => setMenuVisible(false)}
+                    track={{
+                        id: selectedTrack.id,
+                        title: selectedTrack.title,
+                        artist: selectedTrack.artist,
+                        //album_id: selectedTrack.album_id,
+                        //artist_id: selectedTrack.artist_id,
+                        album_art: selectedTrack.album_art,
+                    }}
+                    playlistId={playlist.id}
+                />
+            )}
 
             {/* Player at bottom */}
             <Player />

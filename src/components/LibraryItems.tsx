@@ -49,7 +49,7 @@ export default function LibraryItems() {
                      <TouchableOpacity
                        key={item.id}
                        style={styles.card}
-                       onPress={() => navigation.navigate('Playlist', { id: item.id, title: item.title })}
+                       onPress={() => navigation.navigate('Playlist', { playlistId: item.id, title: item.title })}
                      >
                         <Image source={{ uri: api.getUri() + item.cover }} style={styles.cardImage} />
                         <Text style={styles.cardTitle} numberOfLines={1}>

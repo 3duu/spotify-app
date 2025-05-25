@@ -45,7 +45,7 @@ export default function CreatePlaylistScreen() {
                 await api.post(`/playlists/${newPlaylist.id}/tracks`, { track_id: +trackId });
             }
 
-            navigation.replace('Playlist', { id: newPlaylist.id});
+            navigation.replace('Playlist', { playlistId: newPlaylist.id});
         } catch (err) {
             console.error(err);
             Toast.show({type: 'error',

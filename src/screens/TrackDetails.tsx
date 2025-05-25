@@ -13,12 +13,11 @@ import Slider from '@react-native-community/slider';
 import { MaterialIcons, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import api, { getTrack, TrackMeta } from '../services/api';
 import { player } from '../services/audioPlayer';
-import { FlatList } from 'react-native-gesture-handler';
-import RNModal from 'react-native-modal';
 import {useAppDispatch, useAppSelector} from "../store";
 import {setQueue} from "../store/slices/playerSlice";
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import {RootStackParamList} from "../../App";
+import TrackMenu from "../components/TrackMenu";
 
 type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
 type Props = NativeStackScreenProps<RootStackParamList, 'TrackDetails'>;
@@ -277,41 +276,18 @@ export default function TrackDetails({ navigation, route }: any) {
 
 
              {/* ── MENU BOTTOM SHEET ─────────────────────────── */}
-             <RNModal
-               isVisible={menuVisible}
-               onBackdropPress={() => setMenuVisible(false)}
-               style={styles.modal}
-               swipeDirection="down"
-               onSwipeComplete={() => setMenuVisible(false)}
-             >
-               <View style={styles.menuContainer}>
-                 {/* header drag handle */}
-                 <View style={styles.menuHandle}/>
-                 {/* track info */}
-                 <View style={styles.menuHeader}>
-                   <Image
-                     source={{ uri: api.getUri() + track.album_art }}
-                     style={styles.menuArt}
-                   />
-                   <View style={{marginLeft:12, flex:1}}>
-                     <Text style={styles.menuTitle} numberOfLines={1}>{track.title}</Text>
-                     <Text style={styles.menuSubtitle}>{track.artist}</Text>
-                   </View>
-                 </View>
-
-
-                <FlatList
-                      data={menuItems}
-                   keyExtractor={(item) => item.label}
-                   renderItem={({item}) => (
-                     <TouchableOpacity style={styles.menuItem} onPress={item.onPress}>
-                       <MaterialIcons name={item.icon} size={20} color="#fff" />
-                       <Text style={styles.menuLabel}>{item.label}</Text>
-                     </TouchableOpacity>
-                   )}
-                />
-               </View>
-             </RNModal>
+            <TrackMenu
+                isVisible={menuVisible}
+                onClose={() => setMenuVisible(false)}
+                track={{
+                    id: track.id,
+                    title: track.title,
+                    artist: track.artist,
+                    album_id: track.album_id,
+                    artist_id: track.artist_id,
+                    album_art: track.album_art,
+                }}
+            />
 
         </SafeAreaView>
     );

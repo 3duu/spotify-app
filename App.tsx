@@ -22,8 +22,8 @@ import store from './src/store';
 
 export type RootStackParamList = {
     Main:                  undefined;
-    TrackDetails:          { id: number; playlistId?: number, origin : string };
-    Playlist:              { id: number, title?: string };
+    TrackDetails:          { id: number; playlistId?: number, origin : string, originId? : number };
+    Playlist:              { playlistId: number, title?: string };
     AddToPlaylist:         { trackId: number };
     CreatePlaylist:        { trackId?: number };
 };
