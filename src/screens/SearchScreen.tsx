@@ -15,6 +15,10 @@ import api, { search, SearchResults, TrackMeta, Artist, Album, PlaylistResponse 
 import { useAppDispatch } from '../store';
 import {setPlaying, setQueue} from '../store/slices/playerSlice';
 import Body from '../components/Body';
+import {TrackListMode} from "./TrackListScreen";
+import {useNavigation} from "@react-navigation/native";
+import type {NativeStackNavigationProp} from "@react-navigation/native-stack";
+import {RootStackParamList} from "../../App";
 
 const suggestions = [
     { id: '1', title: 'Music for you', image: 'https://via.placeholder.com/120x160' },
@@ -31,7 +35,9 @@ const sectionsGrid = [
 
 type SectionItem = TrackMeta | Artist | Album | PlaylistResponse;
 
-export default function SearchScreen({ navigation }: any) {
+export default function SearchScreen() {
+
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [query, setQuery] = useState('');
     const [results, setResults] = useState<SearchResults | null>(null);
     const [loading, setLoading] = useState(false);
@@ -103,7 +109,13 @@ export default function SearchScreen({ navigation }: any) {
         return (
             <TouchableOpacity
                 style={styles.resultItem}
-                onPress={() => navigation.navigate('Artist', { id: item.artist_id })}
+                onPress={() => {
+                    navigation.navigate('TrackList', {
+                        id: item.artist_id,
+                        title: item.name,
+                        mode: 'artist'
+                    });
+                }}
             >
                 <Image source={{ uri: api.getUri() + item.image }} style={styles.resultImage} />
                 <Text style={styles.resultTitle}>{item.name}</Text>
@@ -115,7 +127,13 @@ export default function SearchScreen({ navigation }: any) {
         return (
             <TouchableOpacity
                 style={styles.resultItem}
-                onPress={() => navigation.navigate('Album', { id: item.album_id.toString() })}
+                onPress={() => {
+                    navigation.navigate('TrackList', {
+                        id: item.album_id,
+                        title: item.title,
+                        mode: 'album'
+                    });
+                }}
             >
                 <Image source={{ uri: api.getUri() + item.cover }} style={styles.resultImage} />
                 <Text style={styles.resultTitle}>{item.title}</Text>
@@ -128,7 +146,13 @@ export default function SearchScreen({ navigation }: any) {
         return (
             <TouchableOpacity
                 style={styles.resultItem}
-                onPress={() => navigation.navigate('Playlist', { playlistId: item.id, name: item.title })}
+                onPress={() => {
+                    navigation.navigate('TrackList', {
+                        id: item.id,
+                        title: item.title,
+                        mode: 'playlist'
+                    });
+                }}
             >
                 <Image source={{ uri: api.getUri() + item.cover }} style={styles.resultImage} />
                 <Text style={styles.resultTitle}>{item.title}</Text>

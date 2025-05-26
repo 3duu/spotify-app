@@ -77,7 +77,7 @@ export default function HomeItems() {
                              <TouchableOpacity
                                key={item.id}
                                style={styles.card}
-                               onPress={() => navigation.navigate('Playlist', { playlistId: item.id, title: item.title })}
+                               onPress={() => navigation.navigate('TrackList', { id: item.id, title: item.title, mode: 'playlist' })}
                              >
                                 {item.cover ? (
                                     <Image source={{ uri: api.getUri() + item.cover }} style={styles.cardImage} />

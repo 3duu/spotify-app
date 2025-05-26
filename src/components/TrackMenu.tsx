@@ -7,7 +7,6 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAppDispatch, useAppSelector } from '../store';
 import {
     setQueue,
-    setIndex,
     setPlaying
 } from '../store/slices/playerSlice';
 import api, {

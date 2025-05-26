@@ -20,7 +20,7 @@ import CreatePlaylistScreen  from './src/screens/CreatePlaylistScreen';
 
 import store from './src/store';
 import EditPlaylistScreen from "./src/screens/EditPlaylistScreen";
-import {TrackListMode} from "./src/screens/TrackListScreen";
+import TrackListScreen, {TrackListMode} from "./src/screens/TrackListScreen";
 
 export type RootStackParamList = {
     Main:                  undefined;
@@ -29,7 +29,7 @@ export type RootStackParamList = {
     AddToPlaylist:         { trackId: number };
     CreatePlaylist:        { trackId?: number };
     EditPlaylist: { playlistId: number };
-    TrackList: { mode: TrackListMode; id: number };
+    TrackList: { mode: TrackListMode; id: number, title?: string };
 };
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
@@ -115,6 +115,19 @@ export default function App() {
                             name="EditPlaylist"
                             component={EditPlaylistScreen}
                             options={{ headerShown:false }}
+                          />
+
+                          <RootStack.Screen
+                            name="TrackList"
+                            component={TrackListScreen}
+                            options={({ route }) => ({
+                              headerShown: true,
+                              title: {
+                                playlist: 'Playlist',
+                                album:    'Album',
+                                artist:   'Artist',
+                              }[route.params.mode],
+                            })}
                           />
                         </RootStack.Group>
                     </RootStack.Navigator>
