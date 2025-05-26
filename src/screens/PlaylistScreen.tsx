@@ -9,13 +9,12 @@ import {
     FlatList,
     ActivityIndicator
 } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import api, {
     getPlaylist,
     addTrackToPlaylist,
     removeTrackFromPlaylist,
-    updatePlaylistMeta,
     reorderPlaylist, PlaylistDetail, TrackItem,
 } from '../services/api';
 import Player from '../components/Player';
@@ -24,7 +23,6 @@ import { useAppDispatch } from '../store';
 import TrackMenu from "../components/TrackMenu";
 import type {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {RootStackParamList} from "../../App";
-import { useFocusEffect } from '@react-navigation/native';
 
 export default function PlaylistScreen() {
 
@@ -114,7 +112,6 @@ export default function PlaylistScreen() {
     }
 
     const { title, cover, ownerName, ownerImage, duration, tracks } = playlist;
-    //const screenWidth = Dimensions.get('window').width;
 
     const renderItem = ({ item, index }: { item: TrackItem; index: number }) => (
         <TouchableOpacity

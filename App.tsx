@@ -20,6 +20,7 @@ import CreatePlaylistScreen  from './src/screens/CreatePlaylistScreen';
 
 import store from './src/store';
 import EditPlaylistScreen from "./src/screens/EditPlaylistScreen";
+import {TrackListMode} from "./src/screens/TrackListScreen";
 
 export type RootStackParamList = {
     Main:                  undefined;
@@ -28,6 +29,7 @@ export type RootStackParamList = {
     AddToPlaylist:         { trackId: number };
     CreatePlaylist:        { trackId?: number };
     EditPlaylist: { playlistId: number };
+    TrackList: { mode: TrackListMode; id: number };
 };
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();

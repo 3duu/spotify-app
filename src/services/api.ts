@@ -156,6 +156,14 @@ export function getPlaylist(id: number) {
     return api.get<PlaylistDetail>(`/playlists/${id}`).then(r => r.data);
 }
 
+export function getAlbum(id: number) {
+    return api.get<PlaylistDetail>(`/playlists/${id}`).then(r => r.data);
+}
+
+export function getArtist(id: number) {
+    return api.get<PlaylistDetail>(`/playlists/${id}`).then(r => r.data);
+}
+
 // at top with your existing imports
 export function addTrackToPlaylist(plId: number, trackId: number) {
     return api.post(`/playlists/${plId}/tracks`, { track_id: +trackId });

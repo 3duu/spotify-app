@@ -21,7 +21,6 @@ import api, {
     getPlaylist,
     removeTrackFromPlaylist,
     updatePlaylistMeta,
-    reorderPlaylist,
     PlaylistDetail,
     TrackItem,
 } from '../services/api';
