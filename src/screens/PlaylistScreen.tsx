@@ -24,6 +24,7 @@ import { useAppDispatch } from '../store';
 import TrackMenu from "../components/TrackMenu";
 import type {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {RootStackParamList} from "../../App";
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function PlaylistScreen() {
 
@@ -82,21 +83,27 @@ export default function PlaylistScreen() {
         setPlaylist(await getPlaylist(playlistId));
     };
 
-    useEffect(() => {
-        let active = true;
-        (async () => {
-            try {
-                const data = await getPlaylist(playlistId);
-                if (!active) return;
-                setPlaylist(data);
-            } catch (err) {
-                console.error(err);
-            } finally {
-                if (active) setLoading(false);
-            }
-        })();
-        return () => { active = false };
+    const load = React.useCallback(async () => {
+        try {
+            setLoading(true);
+            const pl = await getPlaylist(playlistId);
+            setPlaylist(pl);
+        } catch (e) {
+            console.warn(e);
+        } finally {
+            setLoading(false);
+        }
     }, [playlistId]);
+
+    useEffect(() => {
+        load();
+    }, [load]);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            load();
+        }, [load])
+    );
 
     if (loading || !playlist) {
         return (
@@ -314,7 +321,7 @@ const styles = StyleSheet.create({
        marginBottom: 12,
     },
     iconBtn: {
-        marginRight: 24,
+        marginRight: 28,
     },
     buttonRow: {
         flexDirection: 'row',
@@ -324,14 +331,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#282828',
-        paddingVertical: 6,
+        paddingVertical: 4,
         paddingHorizontal: 12,
         borderRadius: 20,
     },
     actionText: {
         color: '#fff',
         marginLeft: 6,
-        fontSize: 14,
+        fontSize: 13,
     },
     list: {
         paddingHorizontal: 16,
