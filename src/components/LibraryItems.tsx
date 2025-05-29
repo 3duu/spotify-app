@@ -49,7 +49,13 @@ export default function LibraryItems() {
                      <TouchableOpacity
                        key={item.id}
                        style={styles.card}
-                       onPress={() => navigation.navigate('Playlist', { playlistId: item.id, title: item.title })}
+                       onPress={() => {
+                           navigation.navigate('TrackList', {
+                               id: item.id,
+                               title: item.title,
+                               mode: 'playlist'
+                           });
+                       }}
                      >
                         <Image source={{ uri: api.getUri() + item.cover }} style={styles.cardImage} />
                         <Text style={styles.cardTitle} numberOfLines={1}>
@@ -74,7 +80,15 @@ export default function LibraryItems() {
                 renderItem={({ item }) => {
                     const key = item.album_id.toString();
                     return (
-                        <TouchableOpacity key={key} style={styles.card}>
+                        <TouchableOpacity key={key} style={styles.card}
+                          onPress={() => {
+                              navigation.navigate('TrackList', {
+                                id: item.album_id,
+                                title: item.title,
+                                mode: 'album'
+                            });
+                        }}
+                        >
                             <Image source={{ uri: api.getUri() + item.cover }} style={styles.cardImage} />
                             <Text style={styles.cardTitle} numberOfLines={1}>
                                 {item.title} – {item.artist?.name}

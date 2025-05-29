@@ -85,7 +85,7 @@ export interface LibraryData {
         last_updated: string;
     }[];
     albums: {
-        album_id: string;
+        album_id: number;
         title: string;
         artist: {
             name: string;
