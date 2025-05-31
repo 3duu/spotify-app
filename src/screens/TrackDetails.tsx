@@ -30,6 +30,7 @@ interface MenuOption {
 
 export default function TrackDetails({ navigation, route }: any) {
     const { id } = route.params as { id: number };
+    const { audio } = route.params as { audio: TrackMeta | null };
 
     // ── 1) All your useState hooks first ─────────────────────────
     const [track,    setTrack]    = useState<TrackMeta | null>(null);
@@ -100,6 +101,13 @@ export default function TrackDetails({ navigation, route }: any) {
     useEffect(() => {
         let active = true;
         (async () => {
+            if (audio) {
+                setTrack(audio);
+                setDuration(audio.duration);
+                setLoading(false);
+                return;
+            }
+
             setLoading(true);
             const data = await getTrack(id);
             if (!active) return;

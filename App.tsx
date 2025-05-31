@@ -21,15 +21,17 @@ import CreatePlaylistScreen  from './src/screens/CreatePlaylistScreen';
 import store from './src/store';
 import EditPlaylistScreen from "./src/screens/EditPlaylistScreen";
 import TrackListScreen, {TrackListMode} from "./src/screens/TrackListScreen";
+import {TrackMeta} from "./src/services/api";
 
 export type RootStackParamList = {
     Main:                  undefined;
-    TrackDetails:          { id: number; playlistId?: number, origin : string, originId? : number };
+    TrackDetails:          { id: number; playlistId?: number, origin? : string, originId? : number, audio? : TrackMeta };
     Playlist:              { playlistId: number, title?: string };
     AddToPlaylist:         { trackId: number };
     CreatePlaylist:        { trackId?: number };
     EditPlaylist: { playlistId: number };
     TrackList: { mode: TrackListMode; id: number, title?: string };
+    Search:                undefined;
 };
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();

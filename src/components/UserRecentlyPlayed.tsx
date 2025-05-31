@@ -19,7 +19,7 @@ export default function UserRecentlyPlayed() {
     const renderItem = ({ item }: { item: TrackMeta }) => (
         <TouchableOpacity
             style={styles.card}
-            onPress={() => navigation.navigate('TrackDetails', { id: item.id })}
+            onPress={() => navigation.navigate('TrackDetails', { id: item.id, audio: item })}
         >
             {item.album_art ? (
                 <Image source={{ uri: item.album_art }} style={styles.image} />

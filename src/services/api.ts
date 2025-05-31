@@ -63,6 +63,7 @@ export interface TrackMeta {
     album_art?:string;
     duration:     number;
     color:     string;
+    genres: string[];
 }
 
 export async function getTrack(id: number, opts?: { origin?: string; originId?: string | number } ): Promise<TrackMeta> {
@@ -182,6 +183,11 @@ export function updatePlaylistMeta(
 
 export function reorderPlaylist(plId: number, trackIds: number[]) {
     return api.put(`/playlists/${plId}/reorder`, { track_ids: trackIds.map(id => +id) });
+}
+
+export async function getRecommendations(): Promise<TrackMeta[]> {
+    const resp = await api.get<TrackMeta[]>(`/me/recommendations`);
+    return resp.data;
 }
 
 export type RootStackParamList = {

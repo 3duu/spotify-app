@@ -98,7 +98,7 @@ export default function Player() {
             activeOpacity={0.9}
             onPress={() => {
                 if (currentTrackId) {
-                    navigation.navigate('TrackDetails', { id: currentTrackId });
+                    navigation.navigate('TrackDetails', { id: currentTrackId, track: track });
                 }
             }}
         >
