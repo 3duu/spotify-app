@@ -22,7 +22,7 @@ import api, {
     getRecommendations,
 } from '../services/api';
 import { useAppDispatch } from '../store';
-import { setPlaying, setQueue } from '../store/slices/playerSlice';
+import {setIndex, setPlaying, setQueue} from '../store/slices/playerSlice';
 import Body from '../components/Body';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -114,6 +114,7 @@ export default function SearchScreen() {
                 style={styles.resultItem}
                 onPress={() => {
                     dispatch(setQueue([item.id]));
+                    dispatch(setIndex(0));
                     dispatch(setPlaying());
                 }}
             >
