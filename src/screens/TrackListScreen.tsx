@@ -21,7 +21,6 @@ import api, {
     PlaylistDetail,
     TrackItem,
 } from '../services/api';
-import Player from '../components/Player';
 import { setQueue, setPlaying, setIndex } from '../store/slices/playerSlice';
 import { useAppDispatch } from '../store';
 import TrackMenu from '../components/TrackMenu';
@@ -162,8 +161,6 @@ export default function TrackListScreen() {
                     playlistId={mode === 'playlist' ? id : undefined}
                 />
             )}
-
-            <Player />
         </SafeAreaView>
     );
 }

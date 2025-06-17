@@ -113,6 +113,14 @@ export default function SearchScreen() {
             <TouchableOpacity
                 style={styles.resultItem}
                 onPress={() => {
+                    // Instead of dispatching `setQueue/setPlaying`, just open TrackDetails—
+                    // TrackDetails knows how to load + play the given `id`.
+                    navigation.navigate('TrackDetails', {
+                        id: item.id,
+                        origin: 'search',
+                        playlistId: undefined,
+                    });
+
                     dispatch(setQueue([item.id]));
                     dispatch(setIndex(0));
                     dispatch(setPlaying());

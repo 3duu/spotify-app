@@ -1,7 +1,6 @@
 import React, { ReactNode } from 'react';
 import { View, StyleSheet } from 'react-native';
 import Header from './Header';
-import Player from './Player';
 import { JSX } from 'react/jsx-runtime';
 
 interface BodyProps {
@@ -22,10 +21,6 @@ export default function Body({ children, sectionTitle }: Readonly<BodyProps>): J
             {/* Main content */}
             <View style={styles.content}>{children}</View>
 
-            {/* Footer / Player bar */}
-            <View style={styles.footer}>
-                <Player />
-            </View>
         </View>
     );
 }

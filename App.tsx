@@ -1,6 +1,6 @@
-import React from 'react';
+import React, {useRef, useState} from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { NavigationContainer } from '@react-navigation/native';
+import {NavigationContainer, NavigationContainerRef} from '@react-navigation/native';
 import {
     createBottomTabNavigator
 } from '@react-navigation/bottom-tabs';
@@ -22,6 +22,8 @@ import store from './src/store';
 import EditPlaylistScreen from "./src/screens/EditPlaylistScreen";
 import TrackListScreen, {TrackListMode} from "./src/screens/TrackListScreen";
 import {TrackMeta} from "./src/services/api";
+import Player from "./src/components/Player";
+import {View, StyleSheet } from "react-native";
 
 export type RootStackParamList = {
     Main:                  undefined;
@@ -36,14 +38,12 @@ export type RootStackParamList = {
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 
-
 export type MainTabParamList = {
     HomeTab:    undefined;
     SearchTab:  undefined;
     LibraryTab: undefined;
     TrackDetailsTab: { id: number; playlistId?: number };
     PlaylistTab: { id: number };
-
 };
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -78,11 +78,25 @@ function MainTabs() {
 // 4) Root navigator (MainTabs + modals)
 //
 export default function App() {
+
+    const navRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
+    // track the current route name
+    const [currentRoute, setCurrentRoute] = useState<string>('');
+
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <Provider store={store}>
-                <NavigationContainer>
-                    <RootStack.Navigator screenOptions={{ headerShown: false }}>
+                <NavigationContainer
+                    ref={navRef}
+                    onReady={() =>
+                        setCurrentRoute(navRef.current?.getCurrentRoute()?.name ?? '')
+                    }
+                    onStateChange={() =>
+                        setCurrentRoute(navRef.current?.getCurrentRoute()?.name ?? '')
+                    }
+                >
+                    <View style={styles.appContainer}>
+                        <RootStack.Navigator screenOptions={{ headerShown: false }}>
                         {/* Main tabs */}
                         <RootStack.Screen name="Main" component={MainTabs} />
 
@@ -133,8 +147,38 @@ export default function App() {
                           />
                         </RootStack.Group>
                     </RootStack.Navigator>
+
+
+                        {/* ── Persistent Player Footer ─────────────────── */}
+                        {currentRoute !== 'TrackDetails' && (
+                            <View style={styles.footer}>
+                                <Player />
+                            </View>
+                        )}
+                    </View>
                 </NavigationContainer>
             </Provider>
         </GestureHandlerRootView>
     );
 }
+
+// match your Body.tsx constants
+const TAB_BAR_HEIGHT = 80;
+const PLAYER_HEIGHT = 80;
+
+const styles = StyleSheet.create({
+  appContainer: {
+    flex: 1,
+        position: 'relative',
+      },
+    footer: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: TAB_BAR_HEIGHT,
+        height: PLAYER_HEIGHT,
+        backgroundColor: '#181818',
+        zIndex: 10,
+        elevation: 10,
+    },
+});

@@ -158,11 +158,11 @@ export function getPlaylist(id: number) {
 }
 
 export function getAlbum(id: number) {
-    return api.get<PlaylistDetail>(`/playlists/${id}`).then(r => r.data);
+    return api.get<PlaylistDetail>(`/albums/${id}`).then(r => r.data);
 }
 
 export function getArtist(id: number) {
-    return api.get<PlaylistDetail>(`/playlists/${id}`).then(r => r.data);
+    return api.get<PlaylistDetail>(`/artists/${id}`).then(r => r.data);
 }
 
 // at top with your existing imports
