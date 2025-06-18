@@ -19,14 +19,13 @@ import api, {
     Artist,
     Album,
     PlaylistResponse,
-    getRecommendations,
+    getRecommendations, RootStackParamList,
 } from '../services/api';
 import { useAppDispatch } from '../store';
 import {setIndex, setPlaying, setQueue} from '../store/slices/playerSlice';
 import Body from '../components/Body';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../App';
 
 type SectionItem = TrackMeta | Artist | Album | PlaylistResponse;
 type NavProp = NativeStackNavigationProp<RootStackParamList, 'Search'>;

@@ -197,7 +197,13 @@ export type RootStackParamList = {
         origin?: 'playlist'|'album'|'artist'|'search'|'home';
         originId?: string | number;
     };
-    // …
+    AddToPlaylist: { trackId: number };
+    EditPlaylist: { playlistId: number };
+    TrackList: { mode: 'playlist' | 'album' | 'artist'; id: number };
+    CreatePlaylist: undefined;
+    Library: undefined;
+    Home: undefined;
+    Search: { query?: string };
 };
 
 
