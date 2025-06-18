@@ -190,22 +190,4 @@ export async function getRecommendations(): Promise<TrackMeta[]> {
     return resp.data;
 }
 
-export type RootStackParamList = {
-    // … other screens …
-    TrackDetails: {
-        id: string;
-        origin?: 'playlist'|'album'|'artist'|'search'|'home';
-        originId?: string | number;
-    };
-    AddToPlaylist: { trackId: number };
-    EditPlaylist: { playlistId: number };
-    TrackList: { mode: 'playlist' | 'album' | 'artist'; id: number };
-    CreatePlaylist: undefined;
-    Library: undefined;
-    Home: undefined;
-    Search: { query?: string };
-};
-
-
-
 export default api;

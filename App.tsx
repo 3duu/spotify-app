@@ -19,12 +19,33 @@ import PlaylistScreen   from './src/screens/PlaylistScreen';
 import AddToPlaylistScreen  from './src/screens/AddToPlaylistScreen';
 import CreatePlaylistScreen from './src/screens/CreatePlaylistScreen';
 import EditPlaylistScreen   from './src/screens/EditPlaylistScreen';
+import {TrackMeta} from "./src/services/api";
 
 type TabParamList = {
     HomeTab:   undefined;
     SearchTab: undefined;
     LibraryTab:undefined;
 };
+
+export type RootStackParamList = {
+    TrackDetails: {
+        id: number;
+        origin?: 'playlist'|'album'|'artist'|'search'|'home';
+        originId?: string | number;
+        originTitle?: string;
+        playlistId?: number;
+        audio?: TrackMeta;
+    };
+    AddToPlaylist: { trackId: number };
+    EditPlaylist: { playlistId: number };
+    TrackList: { mode: 'playlist' | 'album' | 'artist'; id: number, title?: string };
+    CreatePlaylist: { trackId: number };
+    Library: undefined;
+    Home: undefined;
+    Search: { query?: string };
+    Playlist: { playlistId: number };
+};
+
 const Tab = createBottomTabNavigator<TabParamList>();
 
 // -------------- HOME STACK --------------

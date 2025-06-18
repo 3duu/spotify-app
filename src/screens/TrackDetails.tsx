@@ -11,16 +11,13 @@ import {
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { MaterialIcons, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
-import api, { getTrack, TrackMeta } from '../services/api';
+import api, {getTrack, TrackMeta} from '../services/api';
 import { player } from '../services/audioPlayer';
 import {useAppDispatch, useAppSelector} from "../store";
 import {setQueue} from "../store/slices/playerSlice";
-import {NativeStackScreenProps} from "@react-navigation/native-stack";
-import {RootStackParamList} from "../../App";
 import TrackMenu from "../components/TrackMenu";
 
 type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
-type Props = NativeStackScreenProps<RootStackParamList, 'TrackDetails'>;
 
 interface MenuOption {
     icon: MaterialIconName;
