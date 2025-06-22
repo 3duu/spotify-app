@@ -58,13 +58,13 @@ const HomeStack = createNativeStackNavigator();
 function HomeStackScreen() {
     return (
         <HomeStack.Navigator screenOptions={{ headerShown: false }}>
-            <HomeStack.Screen name="Home"        component={HomeScreen} />
-            <HomeStack.Screen name="TrackList"   component={TrackListScreen} />
-            <HomeStack.Screen name="TrackDetails"component={TrackDetails} />
-            <HomeStack.Screen name="Playlist"    component={PlaylistScreen} />
-            <HomeStack.Screen name="AddToPlaylist"  component={AddToPlaylistScreen} />
-            <HomeStack.Screen name="CreatePlaylist" component={CreatePlaylistScreen} />
-            <HomeStack.Screen name="EditPlaylist"   component={EditPlaylistScreen} />
+            <HomeStack.Screen name="Home"        component={HomeScreen} options={{ headerShown: false }} />
+            <HomeStack.Screen name="TrackList"   component={TrackListScreen} options={{ headerShown: false }} />
+            <HomeStack.Screen name="TrackDetails"component={TrackDetails} options={{ headerShown: false }} />
+            <HomeStack.Screen name="Playlist"    component={PlaylistScreen} options={{ headerShown: false }} />
+            <HomeStack.Screen name="AddToPlaylist"  component={AddToPlaylistScreen} options={{ headerShown: false }} />
+            <HomeStack.Screen name="CreatePlaylist" component={CreatePlaylistScreen} options={{ headerShown: false }} />
+            <HomeStack.Screen name="EditPlaylist"   component={EditPlaylistScreen} options={{ headerShown: false }} />
         </HomeStack.Navigator>
     );
 }
@@ -101,42 +101,6 @@ function LibraryStackScreen() {
     );
 }
 
-// -------------- APP ENTRY --------------
-/*export default function App() {
-    return (
-        <SafeAreaProvider>
-            <Provider store={store}>
-                <NavigationContainer>
-                    <View style={styles.appContainer}>
-                        <Tab.Navigator
-                            screenOptions={({ route }) => ({
-                                headerShown: false,
-                                tabBarStyle: { backgroundColor: '#000', height: 56 },
-                                tabBarActiveTintColor: '#1DB954',
-                                tabBarInactiveTintColor: '#888',
-                                tabBarIcon: ({ color, size }) => {
-                                    let iconName: keyof typeof MaterialIcons.glyphMap;
-                                    if (route.name === 'HomeTab')    iconName = 'home';
-                                    else if (route.name === 'SearchTab') iconName = 'search';
-                                    else                                iconName = 'library-music';
-                                    return <MaterialIcons name={iconName} size={size} color={color} />;
-                                },
-                            })}
-                        >
-                            <Tab.Screen name="HomeTab"   component={HomeStackScreen}   options={{ title: 'Home'    }} />
-                            <Tab.Screen name="SearchTab" component={SearchStackScreen} options={{ title: 'Search'  }} />
-                            <Tab.Screen name="LibraryTab"component={LibraryStackScreen} options={{ title: 'Library' }} />
-                        </Tab.Navigator>
-
-                      {/!* only render Player when not on TrackDetails *!/}
-                        <FooterPlayer />
-                    </View>
-                </NavigationContainer>
-            </Provider>
-        </SafeAreaProvider>
-    );
-}*/
-
 export default function App() {
     // insets.top = notch/statusbar height
     // insets.bottom = home-indicator / soft-buttons height
@@ -160,6 +124,7 @@ function AppNavigator() {
         <View style={styles.appContainer}>
             <Tab.Navigator
                 screenOptions={({ route }) => ({
+                    headerShown: false,
                     // move header down by insets.top
                     headerStyle: {
                         paddingTop: insets.top,
