@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Provider } from 'react-redux';
-import { NavigationContainer } from '@react-navigation/native';
+import {NavigationContainer, useNavigationState} from '@react-navigation/native';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator }  from '@react-navigation/native-stack';
@@ -20,6 +20,11 @@ import AddToPlaylistScreen  from './src/screens/AddToPlaylistScreen';
 import CreatePlaylistScreen from './src/screens/CreatePlaylistScreen';
 import EditPlaylistScreen   from './src/screens/EditPlaylistScreen';
 import {TrackMeta} from "./src/services/api";
+import {
+  SafeAreaProvider,
+      SafeAreaView,
+      useSafeAreaInsets,
+    } from 'react-native-safe-area-context';
 
 type TabParamList = {
     HomeTab:   undefined;
@@ -99,36 +104,69 @@ function LibraryStackScreen() {
 // -------------- APP ENTRY --------------
 export default function App() {
     return (
-        <Provider store={store}>
-            <NavigationContainer>
-                <View style={styles.appContainer}>
-                    <Tab.Navigator
-                        screenOptions={({ route }) => ({
-                            headerShown: false,
-                            tabBarStyle: { backgroundColor: '#000', height: 56 },
-                            tabBarActiveTintColor: '#1DB954',
-                            tabBarInactiveTintColor: '#888',
-                            tabBarIcon: ({ color, size }) => {
-                                let iconName: keyof typeof MaterialIcons.glyphMap;
-                                if (route.name === 'HomeTab')    iconName = 'home';
-                                else if (route.name === 'SearchTab') iconName = 'search';
-                                else                                iconName = 'library-music';
-                                return <MaterialIcons name={iconName} size={size} color={color} />;
-                            },
-                        })}
-                    >
-                        <Tab.Screen name="HomeTab"   component={HomeStackScreen}   options={{ title: 'Home'    }} />
-                        <Tab.Screen name="SearchTab" component={SearchStackScreen} options={{ title: 'Search'  }} />
-                        <Tab.Screen name="LibraryTab"component={LibraryStackScreen}options={{ title: 'Library' }} />
-                    </Tab.Navigator>
+        <SafeAreaProvider>
+            <Provider store={store}>
+                <NavigationContainer>
+                    <View style={styles.appContainer}>
+                        <Tab.Navigator
+                            screenOptions={({ route }) => ({
+                                headerShown: false,
+                                tabBarStyle: { backgroundColor: '#000', height: 56 },
+                                tabBarActiveTintColor: '#1DB954',
+                                tabBarInactiveTintColor: '#888',
+                                tabBarIcon: ({ color, size }) => {
+                                    let iconName: keyof typeof MaterialIcons.glyphMap;
+                                    if (route.name === 'HomeTab')    iconName = 'home';
+                                    else if (route.name === 'SearchTab') iconName = 'search';
+                                    else                                iconName = 'library-music';
+                                    return <MaterialIcons name={iconName} size={size} color={color} />;
+                                },
+                            })}
+                        >
+                            <Tab.Screen name="HomeTab"   component={HomeStackScreen}   options={{ title: 'Home'    }} />
+                            <Tab.Screen name="SearchTab" component={SearchStackScreen} options={{ title: 'Search'  }} />
+                            <Tab.Screen name="LibraryTab"component={LibraryStackScreen}options={{ title: 'Library' }} />
+                        </Tab.Navigator>
 
-                    {/* Persistent Player Footer, always above tabs */}
-                    <View style={styles.footer}>
-                        <Player />
+                      {/* only render Player when not on TrackDetails */}
+                        <FooterPlayer />
                     </View>
-                </View>
-            </NavigationContainer>
-        </Provider>
+                </NavigationContainer>
+            </Provider>
+        </SafeAreaProvider>
+    );
+}
+
+// ---------------- FooterPlayer ----------------
+function FooterPlayer() {
+    // grab the top-level nav state
+    const navState = useNavigationState(state => state);
+    if (!navState) {
+        // not ready yet — render an empty footer so Player stays mounted
+        return <View style={styles.footer}><Player /></View>;
+    }
+
+    // begin at the active tab...
+    let route = navState.routes[navState.index];
+
+    // ...and walk down into nested navigators until there's no more .state
+    while (route.state && Array.isArray((route.state as any).routes)) {
+        const nested = route.state as typeof navState;
+        route = nested.routes[nested.index];
+    }
+
+    // now `route.name` is the deepest screen
+    const activeName = route.name;
+    const isDetails = activeName === 'TrackDetails';
+
+    // render the footer container _always_, but collapse it on TrackDetails
+    return (
+        <View
+            style={[styles.footer, isDetails && styles.footerCollapsed]}
+            pointerEvents={isDetails ? 'none' : 'auto'}
+        >
+            <Player />
+        </View>
     );
 }
 
@@ -145,5 +183,10 @@ const styles = StyleSheet.create({
         backgroundColor: '#181818',
         zIndex: 10,
         elevation: 10,
+    },
+    footerCollapsed: {
+        height: 0,
+        opacity: 0,
+        overflow: 'hidden',
     },
 });
