@@ -102,7 +102,7 @@ function LibraryStackScreen() {
 }
 
 // -------------- APP ENTRY --------------
-export default function App() {
+/*export default function App() {
     return (
         <SafeAreaProvider>
             <Provider store={store}>
@@ -125,15 +125,80 @@ export default function App() {
                         >
                             <Tab.Screen name="HomeTab"   component={HomeStackScreen}   options={{ title: 'Home'    }} />
                             <Tab.Screen name="SearchTab" component={SearchStackScreen} options={{ title: 'Search'  }} />
-                            <Tab.Screen name="LibraryTab"component={LibraryStackScreen}options={{ title: 'Library' }} />
+                            <Tab.Screen name="LibraryTab"component={LibraryStackScreen} options={{ title: 'Library' }} />
                         </Tab.Navigator>
 
-                      {/* only render Player when not on TrackDetails */}
+                      {/!* only render Player when not on TrackDetails *!/}
                         <FooterPlayer />
                     </View>
                 </NavigationContainer>
             </Provider>
         </SafeAreaProvider>
+    );
+}*/
+
+export default function App() {
+    // insets.top = notch/statusbar height
+    // insets.bottom = home-indicator / soft-buttons height
+    return (
+        <SafeAreaProvider>
+            <Provider store={store}>
+                <SafeAreaView style={styles.flex} edges={['top', 'left', 'right']}>
+                    <NavigationContainer>
+                        <AppNavigator />
+                    </NavigationContainer>
+                </SafeAreaView>
+            </Provider>
+        </SafeAreaProvider>
+    );
+}
+
+function AppNavigator() {
+    const insets = useSafeAreaInsets();
+
+    return (
+        <View style={styles.appContainer}>
+            <Tab.Navigator
+                screenOptions={({ route }) => ({
+                    // move header down by insets.top
+                    headerStyle: {
+                        paddingTop: insets.top,
+                        height: 56 + insets.top,
+                        backgroundColor: '#000',
+                    },
+                    headerTitleStyle: { color: '#fff' },
+
+                    // enlarge tabBar to account for insets.bottom
+                    tabBarStyle: {
+                        height: 56 + insets.bottom,
+                        paddingBottom: insets.bottom,
+                        backgroundColor: '#000',
+                    },
+                    tabBarActiveTintColor: '#1DB954',
+                    tabBarInactiveTintColor: '#888',
+                    tabBarIcon: ({ color, size }) => {
+                        let iconName: keyof typeof MaterialIcons.glyphMap;
+                        if (route.name === 'HomeTab')    iconName = 'home';
+                        else if (route.name === 'SearchTab') iconName = 'search';
+                        else                                iconName = 'library-music';
+                        return <MaterialIcons name={iconName} size={size} color={color} />;
+                    },
+                })}
+            >
+                <Tab.Screen name="HomeTab"   component={HomeStackScreen}   options={{ title: 'Home'    }} />
+                <Tab.Screen name="SearchTab" component={SearchStackScreen} options={{ title: 'Search'  }} />
+                <Tab.Screen name="LibraryTab" component={LibraryStackScreen} options={{ title: 'Library' }} />
+            </Tab.Navigator>
+
+            {/* absolutely positioned Player above tabBar */}
+            <View style={[
+                styles.footer,
+                { bottom: 56 + insets.bottom }
+            ]}
+            >
+                <Player />
+            </View>
+        </View>
     );
 }
 
@@ -173,13 +238,14 @@ function FooterPlayer() {
 const PLAYER_HEIGHT = 80;
 
 const styles = StyleSheet.create({
+    flex:        { flex: 1 },
     appContainer: { flex: 1 },
     footer: {
         position: 'absolute',
         left: 0,
         right: 0,
-        bottom: 56,               // tabBar height
-        height: PLAYER_HEIGHT,
+        // we’ll set `bottom` dynamically via insets
+        height: 80,               // your player height
         backgroundColor: '#181818',
         zIndex: 10,
         elevation: 10,
