@@ -9,7 +9,7 @@ import {
     Image
 } from 'react-native';
 import api, {
-    getRecentPlaylists, PlaylistResponse,
+    getRecentPlaylists, PlaylistResponse, getAllPlaylists, Newsletter, getNewsletters
 } from '../services/api';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -19,37 +19,18 @@ import {RootStackParamList} from "../../App";
 export default function HomeItems() {
 
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-    const [activeTab, setActiveTab] = useState('All');
+    const [activeTab, setActiveTab]         = useState('All');
+    const [newsletters, setNewsletters]     = useState<Newsletter[]>([]);
     const [playlists, setPlaylists] = useState<PlaylistResponse[]>([]);
 
     useEffect(() => {
-        // 1) Try fetching recent playlists first
-        getRecentPlaylists(1)
-            .then((recent) => {
-                if (recent.length > 0) {
-                    setPlaylists(recent);
-                } else {
-                    // 2) If no recents, load all playlists
-                    return getRecentPlaylists(1).then(all => setPlaylists(all));
-                }
-            })
-            .catch((err) => {
-                console.error('Failed to load recent playlists, falling back to all:', err);
-                // On error, also fall back
-                getRecentPlaylists(1).then(all => setPlaylists(all));
-            });
+                  // just load the newsletters once
+                getNewsletters()
+                    .then(data => setNewsletters(data))
+                    .catch(err => console.error('Failed to load newsletters:', err));
     }, []);
 
     const categoryTabs = ['All', 'Songs', 'Podcasts'];
-    const featured = {
-        title: 'Mano a Mano de volta!',
-        image: 'https://via.placeholder.com/300x150'
-    };
-    const sextouData = [
-        { id: '1', image: 'https://via.placeholder.com/120' },
-        { id: '2', image: 'https://via.placeholder.com/120' },
-        { id: '3', image: 'https://via.placeholder.com/120' }
-    ];
 
     return (
         <ScrollView style={styles.container}>
@@ -71,45 +52,48 @@ export default function HomeItems() {
             {/* Grid of Playlists */}
             <Text style={styles.sectionHeader}>Your Playlists</Text>
             <View style={styles.gridContainer}>
-                {/*{playlists.map(item => (
-                    <View key={item.id} style={styles.card}>*/}
-                       {playlists.map(item => (
-                             <TouchableOpacity
-                               key={item.id}
-                               style={styles.card}
-                               onPress={() => navigation.navigate('TrackList', { id: item.id, title: item.title, mode: 'playlist' })}
-                             >
-                                {item.cover ? (
-                                    <Image source={{ uri: api.getUri() + item.cover }} style={styles.cardImage} />
-                                ) : (
-                                    <View style={styles.placeholder} />
-                                )}
-                                <Text style={styles.cardTitle} numberOfLines={1}>
-                                    {item.subtitle}
-                                </Text>
-                             </TouchableOpacity>
-                    /*</View>*/
-
+                   {playlists.map(item => (
+                         <TouchableOpacity
+                           key={item.id}
+                           style={styles.card}
+                           onPress={() => navigation.navigate('TrackList', { id: item.id, title: item.title, mode: 'playlist' })}
+                         >
+                            {item.cover ? (
+                                <Image source={{ uri: api.getUri() + item.cover }} style={styles.cardImage} />
+                            ) : (
+                                <View style={styles.placeholder} />
+                            )}
+                            <Text style={styles.cardTitle} numberOfLines={1}>
+                                {item.subtitle}
+                            </Text>
+                         </TouchableOpacity>
                 ))}
             </View>
 
-            {/* Featured Section */}
+            {/* Featured (newsletter) Section */}
             <Text style={styles.sectionHeader}>Chosen for you</Text>
-            <View style={styles.featuredContainer}>
-                <Image source={{ uri: featured.image }} style={styles.featuredImage} />
-                <Text style={styles.featuredTitle}>{featured.title}</Text>
-            </View>
-
-            {/* Sextou! Section */}
-            <Text style={styles.sectionHeader}>TGIF!</Text>
-            <FlatList
-                data={sextouData}
+            <FlatList<Newsletter>
+                data={newsletters}
                 horizontal
-                keyExtractor={item => item.id}
+                keyExtractor={item => item.id.toString()}
                 renderItem={({ item }) => (
-                    <View style={styles.sextouCard}>
-                        <Image source={{ uri: item.image }} style={styles.sextouImage} />
-                    </View>
+                    <TouchableOpacity
+                        style={styles.featuredCard}
+                        onPress={() => {/* navigate to newsletter detail if you have one */}}
+                    >
+                        <Image
+                            source={{ uri: api.getUri() + item.image }}
+                            style={styles.featuredImage}
+                        />
+                        <Text style={styles.featuredTitle} numberOfLines={1}>
+                            {item.title}
+                        </Text>
+                        {item.subtitle && (
+                            <Text style={styles.featuredSubtitle} numberOfLines={1}>
+                                {item.subtitle}
+                            </Text>
+                        )}
+                    </TouchableOpacity>
                 )}
                 showsHorizontalScrollIndicator={false}
             />
@@ -162,5 +146,7 @@ const styles = StyleSheet.create({
     featuredTitle: { color: '#fff', fontSize: 16, marginTop: 8 },
 
     sextouCard: { marginRight: 16 },
-    sextouImage: { width: 120, height: 120, borderRadius: 8 }
+    sextouImage: { width: 120, height: 120, borderRadius: 8 },
+    featuredCard: {},
+    featuredSubtitle: {},
 });

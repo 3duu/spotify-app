@@ -8,6 +8,24 @@ const api = axios.create({
     timeout: 10000,
 });
 
+export async function getNewsletters() : Promise<Newsletter[]> {
+    return api.get<Newsletter[]>('/newsletters')
+        .then((res) => res.data)
+        .catch((err) => {
+            console.error('Failed to fetch newsletters:', err);
+            return [];
+        });
+}
+
+export async function getAllPlaylists() : Promise<PlaylistResponse[]> {
+    return api.get<PlaylistResponse[]>('/playlists')
+        .then((res) => res.data)
+        .catch((err) => {
+            console.error('Failed to fetch playlists:', err);
+            return [];
+        });
+}
+
 // Fetch a list of recent tracks (demo: tracks 1–10)
 export async function getRecentTracks() : Promise<TrackMeta[]> {
         return api.get<TrackMeta[]>(`/tracks/1`)
@@ -191,3 +209,11 @@ export async function getRecommendations(): Promise<TrackMeta[]> {
 }
 
 export default api;
+
+export interface Newsletter {
+    subtitle: any;
+    image: string;
+    id: number;
+    title: string;
+    type: 'PODCAST' | 'SONG' | 'ALBUM' | 'ARTIST';
+}
