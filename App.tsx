@@ -43,7 +43,7 @@ export type RootStackParamList = {
     };
     AddToPlaylist: { trackId: number };
     EditPlaylist: { playlistId: number };
-    TrackList: { mode: 'playlist' | 'album' | 'artist'; id: number, title?: string };
+    TrackList: { mode: 'playlist' | 'album' | 'artist' | 'podcast'; id: number, title?: string };
     CreatePlaylist: { trackId: number };
     Library: undefined;
     Home: undefined;

@@ -9,7 +9,7 @@ import {
     Image
 } from 'react-native';
 import api, {
-    getRecentPlaylists, PlaylistResponse, getAllPlaylists, Newsletter, getNewsletters
+    getRecentPlaylists, PlaylistResponse, Newsletter, getNewsletters
 } from '../services/api';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -24,10 +24,17 @@ export default function HomeItems() {
     const [playlists, setPlaylists] = useState<PlaylistResponse[]>([]);
 
     useEffect(() => {
-                  // just load the newsletters once
-                getNewsletters()
-                    .then(data => setNewsletters(data))
-                    .catch(err => console.error('Failed to load newsletters:', err));
+              // just load the newsletters once
+            getNewsletters()
+                .then(data => setNewsletters(data))
+                .catch(err => console.error('Failed to load newsletters:', err));
+    }, []);
+
+    useEffect(() => {
+        // Load playlists when the component mounts
+        getRecentPlaylists(1) // replace with actual user ID if needed
+            .then(data => setPlaylists(data))
+            .catch(err => console.error('Failed to load playlists:', err));
     }, []);
 
     const categoryTabs = ['All', 'Songs', 'Podcasts'];
@@ -72,34 +79,41 @@ export default function HomeItems() {
 
             {/* Featured (newsletter) Section */}
             <Text style={styles.sectionHeader}>Chosen for you</Text>
-            <FlatList<Newsletter>
-                data={newsletters}
-                horizontal
-                keyExtractor={item => item.id.toString()}
-                renderItem={({ item }) => (
+
+            <View style={styles.gridContainer}>
+                {newsletters.map(item => (
                     <TouchableOpacity
-                        style={styles.featuredCard}
-                        onPress={() => {/* navigate to newsletter detail if you have one */}}
+                        key={item.id}
+                        style={styles.card}
+                        onPress={() => {
+                            const validModes: Array<'playlist' | 'album' | 'artist' | 'podcast'> = ['playlist', 'album', 'artist', 'podcast'];
+                            const mode = validModes.includes(item.type.toLowerCase() as any) ? item.type.toLowerCase() : 'playlist';
+                            navigation.navigate('TrackList', { id: item.item_id, title: item.title, mode });
+                        }}
                     >
-                        <Image
-                            source={{ uri: api.getUri() + item.image }}
-                            style={styles.featuredImage}
-                        />
+                        {item.image ? (
+                            <Image source={{ uri: api.getUri() + item.image }} style={styles.cardImage} />
+                        ) : (
+                            <View style={styles.placeholder} />
+                        )}
                         <Text style={styles.featuredTitle} numberOfLines={1}>
                             {item.title}
                         </Text>
-                        {item.subtitle && (
+                        {item.content && (
                             <Text style={styles.featuredSubtitle} numberOfLines={1}>
-                                {item.subtitle}
+                                {item.content}
                             </Text>
                         )}
                     </TouchableOpacity>
-                )}
-                showsHorizontalScrollIndicator={false}
-            />
+                ))}
+            </View>
+
+            
         </ScrollView>
     );
 }
+
+const CARD_SIZE = 120;
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#121212' },
@@ -140,13 +154,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#333'
     },
     cardTitle: { color: '#fff', marginTop: 8, fontSize: 12 },
-
-    featuredContainer: { marginBottom: 16 },
-    featuredImage: { width: '100%', height: 150, borderRadius: 8 },
     featuredTitle: { color: '#fff', fontSize: 16, marginTop: 8 },
-
-    sextouCard: { marginRight: 16 },
-    sextouImage: { width: 120, height: 120, borderRadius: 8 },
-    featuredCard: {},
-    featuredSubtitle: {},
+    featuredSubtitle: { color: '#fff', fontSize: 10, marginTop: 4 },
 });

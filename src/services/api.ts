@@ -211,9 +211,11 @@ export async function getRecommendations(): Promise<TrackMeta[]> {
 export default api;
 
 export interface Newsletter {
-    subtitle: any;
-    image: string;
     id: number;
     title: string;
+    content: string;
+    date: string;    // YYYY-MM-DD
     type: 'PODCAST' | 'SONG' | 'ALBUM' | 'ARTIST';
+    item_id: number;
+    image: string;   // the cover URL
 }
