@@ -4,7 +4,6 @@ import {
     Text,
     StyleSheet,
     ScrollView,
-    FlatList,
     TouchableOpacity,
     Image
 } from 'react-native';
@@ -15,6 +14,20 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import {useNavigation} from "@react-navigation/native";
 import {RootStackParamList} from "../../App";
+
+type ModeUnion = 'playlist'|'album'|'artist'|'podcast';
+
+function normalizeMode(raw: string): ModeUnion {
+    switch(raw.toUpperCase()) {
+        case 'PLAYLIST': return 'playlist';
+        case 'ALBUM':    return 'album';
+        case 'ARTIST':   return 'artist';
+        case 'PODCAST':  return 'podcast';
+        default:
+            console.warn(`Unknown mode "${raw}", defaulting to "playlist"`);
+            return 'playlist';
+    }
+}
 
 export default function HomeItems() {
 
@@ -86,9 +99,12 @@ export default function HomeItems() {
                         key={item.id}
                         style={styles.card}
                         onPress={() => {
-                            const validModes: Array<'playlist' | 'album' | 'artist' | 'podcast'> = ['playlist', 'album', 'artist', 'podcast'];
-                            const mode = validModes.includes(item.type.toLowerCase() as any) ? item.type.toLowerCase() : 'playlist';
-                            navigation.navigate('TrackList', { id: item.item_id, title: item.title, mode });
+                            const mode = normalizeMode(item.type);
+                            navigation.navigate('TrackList', {
+                                id:        item.item_id,
+                                title:     item.title,
+                                mode,                              // ✅ now a ModeUnion
+                            });
                         }}
                     >
                         {item.image ? (
