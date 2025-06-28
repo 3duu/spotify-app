@@ -18,6 +18,7 @@ import api, {
     getPlaylist,
     getAlbum,
     getArtist,
+    getPodcast,
     PlaylistDetail,
     TrackItem,
 } from '../services/api';
@@ -26,7 +27,7 @@ import { useAppDispatch } from '../store';
 import TrackMenu from '../components/TrackMenu';
 import type { RootStackParamList } from '../../App';
 
-export type TrackListMode = 'playlist' | 'album' | 'artist';
+export type TrackListMode = 'playlist' | 'album' | 'artist' | 'podcast';
 
 type RouteProps = {
     TrackList: { mode: TrackListMode; id: number };
@@ -52,7 +53,9 @@ export default function TrackListScreen() {
             let data: PlaylistDetail;
             if (mode === 'playlist') data = await getPlaylist(id);
             else if (mode === 'album') data = await getAlbum(id);
-            else data = await getArtist(id);
+            else if (mode === 'artist') data = await getArtist(id);
+            else if (mode === 'podcast') data = await getPodcast(id); // assuming podcasts are treated like artists
+            else data = await getPlaylist(id);
             setDetail(data);
         } finally {
             setLoading(false);

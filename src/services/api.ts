@@ -183,6 +183,10 @@ export function getArtist(id: number) {
     return api.get<PlaylistDetail>(`/artists/${id}`).then(r => r.data);
 }
 
+export function getPodcast(id: number) {
+    return api.get<PlaylistDetail>(`/podcasts/${id}`).then(r => r.data);
+}
+
 // at top with your existing imports
 export function addTrackToPlaylist(plId: number, trackId: number) {
     return api.post(`/playlists/${plId}/tracks`, { track_id: +trackId });
