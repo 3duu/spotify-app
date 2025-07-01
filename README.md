@@ -47,8 +47,8 @@ Clone or download the backend repo (or use the /backend folder if included in th
 bash
 Copiar
 Editar
-git clone https://github.com/YOUR_USERNAME/spotify-clone-backend.git
-cd spotify-clone-backend
+git clone https://github.com/3duu/spotify-mock-api.git
+cd spotify-mock-api
 go run main.go
 By default, the backend runs at http://localhost:8080
 
