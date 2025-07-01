@@ -138,4 +138,4 @@ Open issues or PRs if you find bugs or want to suggest features!
 All code should be formatted and linted before pushing
 
 License
-MIT © YOUR_NAME
+MIT © EDUARDO PORTO DE ARAUJO
