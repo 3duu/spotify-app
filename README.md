@@ -33,8 +33,8 @@ Quickstart
 bash
 Copiar
 Editar
-git clone https://github.com/YOUR_USERNAME/spotify-clone-frontend.git
-cd spotify-clone-frontend
+git clone https://github.com/3duu/spotify-app.git
+cd spotify-app
 2. Install dependencies
 bash
 Copiar
