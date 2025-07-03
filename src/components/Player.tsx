@@ -10,9 +10,10 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { player } from '../services/audioPlayer';
 import { useAppDispatch, useAppSelector } from '../store';
-import { setPlaying, setPaused } from '../store/slices/playerSlice';
+import {setPlaying, setPaused, setDuration, setPosition} from '../store/slices/playerSlice';
 import api, {getTrack, TrackMeta} from '../services/api';
 import { useNavigation } from '@react-navigation/native';
+import {PLAYER_HEIGHT} from "../constants/layout";
 
 function hexToRgba(hex: string, alpha: number) {
     const r = parseInt(hex.slice(1, 3), 16);
@@ -22,14 +23,11 @@ function hexToRgba(hex: string, alpha: number) {
 }
 
 export default function Player() {
-    const dispatch = useAppDispatch();
-    const { currentTrackId, isPlaying } = useAppSelector(s => s.player);
 
+    const dispatch = useAppDispatch();
     const [track,   setTrack]   = useState<TrackMeta | null>(null);
     const [loading, setLoading] = useState(false);
-    const [position, setPosition] = useState(0);
-    const [duration, setDuration] = useState(0);
-
+    const { currentTrackId, isPlaying, position, duration } = useAppSelector(s => s.player);
     const navigation = useNavigation<any>();
 
     // Load / replace the singleton player whenever the track ID changes
@@ -143,8 +141,6 @@ export default function Player() {
         </TouchableOpacity>
     );
 }
-
-const PLAYER_HEIGHT = 70;
 
 const styles = StyleSheet.create({
     wrapper: {},

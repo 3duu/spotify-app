@@ -21,7 +21,7 @@ import api, {
     PlaylistResponse,
     getRecommendations,
 } from '../services/api';
-import { useAppDispatch } from '../store';
+import {useAppDispatch, useAppSelector} from '../store';
 import {setIndex, setPlaying, setQueue} from '../store/slices/playerSlice';
 import Body from '../components/Body';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -34,6 +34,7 @@ type NavProp = NativeStackNavigationProp<RootStackParamList, 'Search'>;
 export default function SearchScreen() {
     const navigation = useNavigation<NavProp>();
     const dispatch = useAppDispatch();
+    const playerVisible = useAppSelector(s => !!s.player.currentTrackId);
 
     // Search‐query state + debounce ref
     const [query, setQuery] = useState<string>('');
@@ -266,7 +267,7 @@ export default function SearchScreen() {
     ];
 
     return (
-        <Body sectionTitle="Search" userImage="https://via.placeholder.com/36">
+        <Body sectionTitle="Search" userImage="https://via.placeholder.com/36" playerVisible={playerVisible}>
             <View style={styles.container}>
                 {/* Search Bar */}
                 <View style={styles.searchBarContainer}>

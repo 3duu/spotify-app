@@ -14,7 +14,7 @@ import { MaterialIcons, MaterialCommunityIcons, Ionicons } from '@expo/vector-ic
 import api, {getTrack, TrackMeta} from '../services/api';
 import { player } from '../services/audioPlayer';
 import {useAppDispatch, useAppSelector} from "../store";
-import {setQueue} from "../store/slices/playerSlice";
+import {setDuration, setPaused, setPlaying, setPosition, setQueue} from "../store/slices/playerSlice";
 import TrackMenu from "../components/TrackMenu";
 
 type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
@@ -32,9 +32,7 @@ export default function TrackDetails({ navigation, route }: any) {
     // ── 1) All your useState hooks first ─────────────────────────
     const [track,    setTrack]    = useState<TrackMeta | null>(null);
     const [loading,  setLoading]  = useState(true);
-    const [position, setPosition] = useState(0);
-    const [duration, setDuration] = useState(1);
-    const [playing,  setPlaying]  = useState(false);
+    const { isPlaying, position, duration } = useAppSelector(s => s.player);
     const [deviceName, setDeviceName] = useState('Phone speaker');
     const [shuffle,  setShuffle]  = useState(false);
     const [repeat,   setRepeat]   = useState(false);
@@ -82,8 +80,14 @@ export default function TrackDetails({ navigation, route }: any) {
         setPosition(newPos);
     };
     const onRepeatPress  = () => setRepeat(r => !r);
-    const onPlayPause    = () => {
-        player.playing ? player.pause() : player.play();
+    const onPlayPause = () => {
+        if (isPlaying) {
+            player.pause();
+            dispatch(setPaused());
+        } else {
+            player.play();
+            dispatch(setPlaying());
+        }
     };
 
     // format mm:ss
@@ -120,7 +124,12 @@ export default function TrackDetails({ navigation, route }: any) {
         const iv = setInterval(() => {
             setPosition(player.currentTime);
             setDuration(player.duration   ?? duration);
-            setPlaying (player.playing    ?? playing);
+            if (player.playing !== isPlaying) {
+                if (player.playing)
+                    dispatch(setPlaying());
+                else
+                    dispatch(setPaused());
+            }
         }, 300);
         return () => clearInterval(iv);
     }, [player, duration]);
@@ -219,7 +228,7 @@ export default function TrackDetails({ navigation, route }: any) {
                         thumbTintColor="#fff"
                         onSlidingComplete={val => {
                             player.seekTo(val).catch(console.error);
-                            setPosition(val);
+                            dispatch(setPosition(val));
                         }}
                     />
                     <Text style={styles.timeStamp}>-{fmt(remaining)}</Text>
@@ -241,7 +250,7 @@ export default function TrackDetails({ navigation, route }: any) {
 
                     <TouchableOpacity onPress={onPlayPause}>
                         <MaterialIcons
-                            name={playing ? 'pause' : 'play-arrow'}
+                            name={isPlaying ? 'pause' : 'play-arrow'}
                             size={32}
                             color="#fff"
                         />

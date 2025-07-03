@@ -1,6 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface PlayerState {
+    position: 0,
+    duration: 0,
     queue:           number[];          // all queued track IDs
     index:           number;            // current index into that queue
     currentTrackId:  number | null;     // equals queue[index] or null if empty
@@ -8,6 +10,8 @@ export interface PlayerState {
 }
 
 const initialState: PlayerState = {
+    position: 0,
+    duration: 0,
     queue:          [],
     index:          0,
     currentTrackId: null,
@@ -26,15 +30,10 @@ const playerSlice = createSlice({
             state.isPlaying = false;
         },
 
-        /** Start playback (will be picked up by effect) */
-        setPlaying(state) {
-            state.isPlaying = true;
-        },
-
-        /** Pause playback */
-        setPaused(state) {
-            state.isPlaying = false;
-        },
+        setPlaying(state) { state.isPlaying = true; },
+        setPaused(state) { state.isPlaying = false; },
+        setPosition(state, action) { state.position = action.payload; },
+        setDuration(state, action) { state.duration = action.payload; },
 
         /** Advance to the next track in the queue (or stop if at end) */
         nextTrack(state) {
@@ -76,6 +75,8 @@ export const {
     nextTrack,
     prevTrack,
     setIndex,
+    setPosition,
+    setDuration
 } = playerSlice.actions;
 
 export default playerSlice.reducer;

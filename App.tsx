@@ -7,7 +7,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator }  from '@react-navigation/native-stack';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import store from './src/store';
+import store, {useAppSelector} from './src/store';
 import Player from './src/components/Player';
 
 import HomeScreen from './src/screens/HomeScreen';
@@ -25,6 +25,7 @@ import {
       SafeAreaView,
       useSafeAreaInsets,
     } from 'react-native-safe-area-context';
+import PlaybackSync from "./src/components/PlaybackSync";
 
 type TabParamList = {
     HomeTab:   undefined;
@@ -56,15 +57,18 @@ const Tab = createBottomTabNavigator<TabParamList>();
 // -------------- HOME STACK --------------
 const HomeStack = createNativeStackNavigator();
 function HomeStackScreen() {
+
+    const headerShow = false
+
     return (
-        <HomeStack.Navigator screenOptions={{ headerShown: false }}>
-            <HomeStack.Screen name="Home"        component={HomeScreen} options={{ headerShown: false }} />
-            <HomeStack.Screen name="TrackList"   component={TrackListScreen} options={{ headerShown: false }} />
-            <HomeStack.Screen name="TrackDetails"component={TrackDetails} options={{ headerShown: false }} />
-            <HomeStack.Screen name="Playlist"    component={PlaylistScreen} options={{ headerShown: false }} />
-            <HomeStack.Screen name="AddToPlaylist"  component={AddToPlaylistScreen} options={{ headerShown: false }} />
-            <HomeStack.Screen name="CreatePlaylist" component={CreatePlaylistScreen} options={{ headerShown: false }} />
-            <HomeStack.Screen name="EditPlaylist"   component={EditPlaylistScreen} options={{ headerShown: false }} />
+        <HomeStack.Navigator screenOptions={{ headerShown: headerShow }}>
+            <HomeStack.Screen name="Home"        component={HomeScreen} options={{ headerShown: headerShow }} />
+            <HomeStack.Screen name="TrackList"   component={TrackListScreen} options={{ headerShown: headerShow }} />
+            <HomeStack.Screen name="TrackDetails" component={TrackDetails} options={{ headerShown: headerShow }} />
+            <HomeStack.Screen name="Playlist"    component={PlaylistScreen} options={{ headerShown: headerShow }} />
+            <HomeStack.Screen name="AddToPlaylist"  component={AddToPlaylistScreen} options={{ headerShown: headerShow }} />
+            <HomeStack.Screen name="CreatePlaylist" component={CreatePlaylistScreen} options={{ headerShown: headerShow }} />
+            <HomeStack.Screen name="EditPlaylist"   component={EditPlaylistScreen} options={{ headerShown: headerShow }} />
         </HomeStack.Navigator>
     );
 }
@@ -108,6 +112,7 @@ export default function App() {
         <SafeAreaProvider>
             <Provider store={store}>
                 <SafeAreaView style={styles.flex} edges={['top', 'left', 'right']}>
+                    <PlaybackSync />
                     <NavigationContainer>
                         <AppNavigator />
                     </NavigationContainer>
@@ -122,6 +127,7 @@ function AppNavigator() {
 
     return (
         <View style={styles.appContainer}>
+            <FooterPlayer />
             <Tab.Navigator
                 screenOptions={({ route }) => ({
                     headerShown: false,
@@ -155,22 +161,22 @@ function AppNavigator() {
                 <Tab.Screen name="LibraryTab" component={LibraryStackScreen} options={{ title: 'Library' }} />
             </Tab.Navigator>
 
-            {/* absolutely positioned Player above tabBar */}
-            <View style={[
-                styles.footer,
-                { bottom: 56 + insets.bottom }
-            ]}
-            >
-                <Player />
-            </View>
         </View>
     );
 }
 
 // ---------------- FooterPlayer ----------------
 function FooterPlayer() {
-    // grab the top-level nav state
+
+    const insets = useSafeAreaInsets(); // <- add this line!
     const navState = useNavigationState(state => state);
+    const currentTrackId = useAppSelector(s => s.player.currentTrackId);
+
+    if (!currentTrackId) {
+        // If no track is loaded, don't render the player at all
+        return null;
+    }
+
     if (!navState) {
         // not ready yet — render an empty footer so Player stays mounted
         return <View style={styles.footer}><Player /></View>;
@@ -192,7 +198,11 @@ function FooterPlayer() {
     // render the footer container _always_, but collapse it on TrackDetails
     return (
         <View
-            style={[styles.footer, isDetails && styles.footerCollapsed]}
+            style={[
+                styles.footer,
+                { bottom: 56 + insets.bottom },
+                isDetails && styles.footerCollapsed
+            ]}
             pointerEvents={isDetails ? 'none' : 'auto'}
         >
             <Player />
@@ -204,14 +214,12 @@ const PLAYER_HEIGHT = 80;
 
 const styles = StyleSheet.create({
     flex:        { flex: 1 },
-    appContainer: { flex: 1 },
+    appContainer: { flex: 1, position: 'relative' },
     footer: {
         position: 'absolute',
         left: 0,
         right: 0,
-        // we’ll set `bottom` dynamically via insets
-        height: 80,               // your player height
-        backgroundColor: '#181818',
+        height: 80,
         zIndex: 10,
         elevation: 10,
     },
