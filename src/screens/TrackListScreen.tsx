@@ -23,9 +23,10 @@ import api, {
     TrackItem,
 } from '../services/api';
 import { setQueue, setPlaying, setIndex } from '../store/slices/playerSlice';
-import { useAppDispatch } from '../store';
+import {useAppDispatch, useAppSelector} from '../store';
 import TrackMenu from '../components/TrackMenu';
 import type { RootStackParamList } from '../../App';
+import Body from '../components/Body';
 
 export type TrackListMode = 'playlist' | 'album' | 'artist' | 'podcast';
 
@@ -45,6 +46,7 @@ export default function TrackListScreen() {
     const [loading, setLoading] = useState(true);
     const [menuVisible, setMenuVisible] = useState(false);
     const [sel, setSel] = useState<TrackItem | null>(null);
+    const playerVisible = useAppSelector(s => !!s.player.currentTrackId);
 
     // fetcher
     const load = useCallback(async () => {
@@ -113,6 +115,7 @@ export default function TrackListScreen() {
     );
 
     return (
+        <Body sectionTitle="Search" userImage="https://via.placeholder.com/36" playerVisible={playerVisible}>
         <SafeAreaView style={styles.safe}>
             {/* ← back + title */}
             <View style={styles.header}>
@@ -165,6 +168,7 @@ export default function TrackListScreen() {
                 />
             )}
         </SafeAreaView>
+        </Body>
     );
 }
 
