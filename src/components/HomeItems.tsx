@@ -8,7 +8,14 @@ import {
     Image
 } from 'react-native';
 import api, {
-    getRecentPlaylists, PlaylistResponse, Newsletter, getNewsletters
+    getRecentPlaylists,
+    PlaylistResponse,
+    Newsletter,
+    getNewsletters,
+    TrackMeta,
+    LibraryData,
+    getRecentTracks,
+    getLibraryData
 } from '../services/api';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -29,12 +36,17 @@ function normalizeMode(raw: string): ModeUnion {
     }
 }
 
+const categoryTabs = ['All', 'Songs', 'Podcasts'] as const
+
 export default function HomeItems() {
 
+    type CategoryTab = typeof categoryTabs[number];
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-    const [activeTab, setActiveTab]         = useState('All');
+    const [activeTab, setActiveTab]         = useState<CategoryTab>('All');
     const [newsletters, setNewsletters]     = useState<Newsletter[]>([]);
     const [playlists, setPlaylists] = useState<PlaylistResponse[]>([]);
+    const [tracks, setTracks]               = useState<TrackMeta[]>([]);
+    const [library, setLibrary]             = useState<LibraryData|null>(null);
 
     useEffect(() => {
               // just load the newsletters once
@@ -48,6 +60,20 @@ export default function HomeItems() {
         getRecentPlaylists(1) // replace with actual user ID if needed
             .then(data => setPlaylists(data))
             .catch(err => console.error('Failed to load playlists:', err));
+    }, []);
+
+    // load recent tracks for "Songs"
+    useEffect(() => {
+        getRecentTracks()
+            .then(data => setTracks(data))
+            .catch(err => console.error('Failed to load tracks:', err));
+    }, []);
+
+// load library data for "Podcasts"
+    useEffect(() => {
+        getLibraryData()
+            .then(data => setLibrary(data))
+            .catch(err => console.error('Failed to load library:', err));
     }, []);
 
     const categoryTabs = ['All', 'Songs', 'Podcasts'];
@@ -69,6 +95,8 @@ export default function HomeItems() {
                 ))}
             </View>
 
+            {activeTab === 'All' && (
+                <>
             {/* Grid of Playlists */}
             <Text style={styles.sectionHeader}>Your Playlists</Text>
             <View style={styles.gridContainer}>
@@ -123,6 +151,75 @@ export default function HomeItems() {
                     </TouchableOpacity>
                 ))}
             </View>
+                </>
+            )}
+
+            {activeTab === 'Songs' && (
+                <>
+                    <Text style={styles.sectionHeader}>Your Songs</Text>
+                    <View style={styles.gridContainer}>
+                        {tracks.map(track => (
+                            <TouchableOpacity
+                                key={track.id}
+                                style={styles.card}
+                                onPress={() =>
+                                    navigation.navigate('TrackList', {
+                                        id: track.id,
+                                        title: track.title,
+                                        mode: 'playlist'   // or 'artist' / adjust as you wish
+                                    })
+                                }
+                            >
+                                {track.album_art ? (
+                                    <Image
+                                        source={{ uri: api.getUri() + track.album_art }}
+                                        style={styles.cardImage}
+                                    />
+                                ) : (
+                                    <View style={styles.placeholder} />
+                                )}
+                                <Text style={styles.cardTitle} numberOfLines={1}>
+                                    {track.title}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                </>
+            )}
+
+            {/* ------ PODCASTS ------ */}
+            {activeTab === 'Podcasts' && library && (
+                <>
+                    <Text style={styles.sectionHeader}>Your Podcasts</Text>
+                    <View style={styles.gridContainer}>
+                        {library.podcasts.map(p => (
+                            <TouchableOpacity
+                                key={p.id}
+                                style={styles.card}
+                                onPress={() =>
+                                    navigation.navigate('TrackList', {
+                                        id: p.id,
+                                        title: p.title,
+                                        mode: 'podcast'
+                                    })
+                                }
+                            >
+                                {p.cover ? (
+                                    <Image
+                                        source={{ uri: api.getUri() + p.cover }}
+                                        style={styles.cardImage}
+                                    />
+                                ) : (
+                                    <View style={styles.placeholder} />
+                                )}
+                                <Text style={styles.cardTitle} numberOfLines={1}>
+                                    {p.title}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                </>
+            )}
 
             
         </ScrollView>

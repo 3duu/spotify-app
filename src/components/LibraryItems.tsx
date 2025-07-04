@@ -104,9 +104,16 @@ export default function LibraryItems() {
             <FlatList
                 data={library.podcasts}
                 horizontal
-                keyExtractor={item => item.id}
+                keyExtractor={item => item.id.toString()}
                 renderItem={({ item }) => (
-                    <TouchableOpacity key={item.id} style={styles.card}>
+                    <TouchableOpacity key={item.id} style={styles.card}
+                                      onPress={() => {
+                                          navigation.navigate('TrackList', {
+                                              id: item.id,
+                                              title: item.title,
+                                              mode: 'podcast'
+                                          });
+                                      }}>
                         <Image source={{ uri: api.getUri() + item.cover }} style={styles.cardImage} />
                         <Text style={styles.cardTitle} numberOfLines={1}>
                             {item.title}

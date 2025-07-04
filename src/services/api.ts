@@ -112,7 +112,7 @@ export interface LibraryData {
         cover: string;
     }[];
     podcasts: {
-        id: string;
+        id: number;
         title: string;
         hosts: string[];
         cover: string;
