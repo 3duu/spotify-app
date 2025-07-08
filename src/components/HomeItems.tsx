@@ -5,7 +5,7 @@ import {
     StyleSheet,
     ScrollView,
     TouchableOpacity,
-    Image
+    Image, FlatList
 } from 'react-native';
 import api, {
     getRecentPlaylists,
@@ -15,7 +15,7 @@ import api, {
     TrackMeta,
     LibraryData,
     getRecentTracks,
-    getLibraryData
+    getLibraryData, Album
 } from '../services/api';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -37,22 +37,25 @@ function normalizeMode(raw: string): ModeUnion {
 }
 
 const categoryTabs = ['All', 'Songs', 'Podcasts'] as const
+type CategoryTab = typeof categoryTabs[number];
 
 export default function HomeItems() {
-
-    type CategoryTab = typeof categoryTabs[number];
+    
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-    const [activeTab, setActiveTab]         = useState<CategoryTab>('All');
-    const [newsletters, setNewsletters]     = useState<Newsletter[]>([]);
+    const [activeTab, setActiveTab]         = useState('All');
+    const [newsletters, setNewsletters] = useState<Newsletter[]>([]);
     const [playlists, setPlaylists] = useState<PlaylistResponse[]>([]);
-    const [tracks, setTracks]               = useState<TrackMeta[]>([]);
-    const [library, setLibrary]             = useState<LibraryData|null>(null);
+    const [tracks, setTracks] = useState<TrackMeta[]>([]);
+    const [library, setLibrary] = useState<LibraryData | null>(null);
+    const [newMusicFriday, setNewMusicFriday] = useState<Album[]>([]);
+    const [personalizedReleases, setPersonalizedReleases] = useState<Album[]>([]);
+    const [topNewPicks, setTopNewPicks] = useState<Album[]>([]);
 
     useEffect(() => {
-              // just load the newsletters once
-            getNewsletters()
-                .then(data => setNewsletters(data))
-                .catch(err => console.error('Failed to load newsletters:', err));
+        // just load the newsletters once
+        getNewsletters()
+            .then(data => setNewsletters(data))
+            .catch(err => console.error('Failed to load newsletters:', err));
     }, []);
 
     useEffect(() => {
@@ -76,7 +79,8 @@ export default function HomeItems() {
             .catch(err => console.error('Failed to load library:', err));
     }, []);
 
-    const categoryTabs = ['All', 'Songs', 'Podcasts'];
+
+    // Fetch data here (same as before)
 
     return (
         <ScrollView style={styles.container}>
@@ -97,60 +101,52 @@ export default function HomeItems() {
 
             {activeTab === 'All' && (
                 <>
-            {/* Grid of Playlists */}
-            <Text style={styles.sectionHeader}>Your Playlists</Text>
-            <View style={styles.gridContainer}>
-                   {playlists.map(item => (
-                         <TouchableOpacity
-                           key={item.id}
-                           style={styles.card}
-                           onPress={() => navigation.navigate('TrackList', { id: item.id, title: item.title, mode: 'playlist' })}
-                         >
-                            {item.cover ? (
-                                <Image source={{ uri: api.getUri() + item.cover }} style={styles.cardImage} />
-                            ) : (
-                                <View style={styles.placeholder} />
-                            )}
-                            <Text style={styles.cardTitle} numberOfLines={1}>
-                                {item.subtitle}
-                            </Text>
-                         </TouchableOpacity>
-                ))}
-            </View>
+                    {/* Playlists Grid */}
+                    <Text style={styles.sectionHeader}>Your Playlists</Text>
+                    <View style={styles.gridContainer}>
+                        {playlists.map(item => (
+                            <TouchableOpacity
+                                key={item.id}
+                                style={styles.card}
+                                onPress={() => navigation.navigate('TrackList', { id: item.id, title: item.title, mode: 'playlist' })}
+                            >
+                                {item.cover ? (
+                                    <Image source={{ uri: api.getUri() + item.cover }} style={styles.cardImage} />
+                                ) : (
+                                    <View style={styles.placeholder} />
+                                )}
+                                <Text style={styles.cardTitle} numberOfLines={1}>
+                                    {item.subtitle}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
 
-            {/* Featured (newsletter) Section */}
-            <Text style={styles.sectionHeader}>Chosen for you</Text>
-
-            <View style={styles.gridContainer}>
-                {newsletters.map(item => (
-                    <TouchableOpacity
-                        key={item.id}
-                        style={styles.card}
-                        onPress={() => {
-                            const mode = normalizeMode(item.type);
-                            navigation.navigate('TrackList', {
-                                id:        item.item_id,
-                                title:     item.title,
-                                mode,                              // ✅ now a ModeUnion
-                            });
-                        }}
-                    >
-                        {item.image ? (
-                            <Image source={{ uri: api.getUri() + item.image }} style={styles.cardImage} />
-                        ) : (
-                            <View style={styles.placeholder} />
-                        )}
-                        <Text style={styles.featuredTitle} numberOfLines={1}>
-                            {item.title}
-                        </Text>
-                        {item.content && (
-                            <Text style={styles.featuredSubtitle} numberOfLines={1}>
-                                {item.content}
-                            </Text>
-                        )}
-                    </TouchableOpacity>
-                ))}
-            </View>
+                    {/* Newsletter Section */}
+                    <Text style={styles.sectionHeader}>Chosen for you</Text>
+                    <View style={styles.gridContainer}>
+                        {newsletters.map(item => (
+                            <TouchableOpacity
+                                key={item.id}
+                                style={styles.card}
+                                onPress={() => navigation.navigate('TrackList', { id: item.item_id, title: item.title, mode: normalizeMode(item.type) })}
+                            >
+                                {item.image ? (
+                                    <Image source={{ uri: api.getUri() + item.image }} style={styles.cardImage} />
+                                ) : (
+                                    <View style={styles.placeholder} />
+                                )}
+                                <Text style={styles.featuredTitle} numberOfLines={1}>
+                                    {item.title}
+                                </Text>
+                                {item.content && (
+                                    <Text style={styles.featuredSubtitle} numberOfLines={1}>
+                                        {item.content}
+                                    </Text>
+                                )}
+                            </TouchableOpacity>
+                        ))}
+                    </View>
                 </>
             )}
 
@@ -220,53 +216,106 @@ export default function HomeItems() {
                     </View>
                 </>
             )}
-
-            
         </ScrollView>
     );
 }
-
-const CARD_SIZE = 120;
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#121212' },
     tabsContainer: {
         flexDirection: 'row',
         justifyContent: 'center',
-        marginVertical: 16
+        marginVertical: 16,
+        paddingHorizontal: 16,
     },
     tab: {
         paddingHorizontal: 16,
         paddingVertical: 8,
         backgroundColor: '#333',
-        borderRadius: 16,
-        marginHorizontal: 8
+        borderRadius: 20,
+        marginHorizontal: 8,
+        alignItems: 'center',
     },
-    activeTab: { backgroundColor: '#1DB954' },
-    tabText: { color: '#fff', fontSize: 14 },
-    activeTabText: { color: '#000', fontWeight: 'bold' },
-
+    activeTab: {
+        backgroundColor: '#1DB954',
+        borderRadius: 20,
+    },
+    tabText: {
+        color: '#fff',
+        fontSize: 14,
+    },
+    activeTabText: {
+        color: '#000',
+        fontWeight: 'bold',
+    },
     sectionHeader: {
         color: '#fff',
         fontSize: 18,
         fontWeight: 'bold',
-        marginVertical: 16
+        marginVertical: 16,
     },
-
     gridContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
     },
     card: { width: '48%', marginBottom: 16 },
     cardImage: { width: '100%', aspectRatio: 1 },
-    placeholder: {
-        width: '100%',
-        aspectRatio: 1,
-        //borderRadius: 8,
-        backgroundColor: '#333'
+    cardTitle: {
+        color: '#fff',
+        fontSize: 12,
+        textAlign: 'center',
     },
-    cardTitle: { color: '#fff', marginTop: 8, fontSize: 12 },
-    featuredTitle: { color: '#fff', fontSize: 16, marginTop: 8 },
-    featuredSubtitle: { color: '#fff', fontSize: 10, marginTop: 4 },
+    cardMini: {
+        width: '48%',
+        marginBottom: 16,
+    },
+    cardImageMini: {
+        width: '100%',
+        height: 140,
+        marginBottom: 6,
+    },
+    cardTitleMini: {
+        color: '#fff',
+        fontSize: 12,
+        textAlign: 'center',
+    },
+    featuredTitle: {
+        color: '#fff',
+        fontSize: 16,
+        marginTop: 8,
+    },
+    featuredSubtitle: {
+        color: '#fff',
+        fontSize: 10,
+        marginTop: 4,
+    },
+    banner: {
+        width: '100%',
+        height: 120,
+        marginBottom: 16,
+    },
+    bannerSubtitle: {
+        paddingHorizontal: 16,
+        color: 'white',
+        fontSize: 14,
+        marginBottom: 20,
+    },
+    albumCard: {
+        width: 140,
+        marginRight: 16,
+    },
+    albumImage: {
+        width: 140,
+        height: 140,
+        marginBottom: 6,
+    },
+    albumTitle: {
+        color: 'white',
+        fontSize: 14,
+    },
+    placeholder: {
+
+    }
 });
+

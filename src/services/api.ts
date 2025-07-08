@@ -27,9 +27,9 @@ export async function getAllPlaylists() : Promise<PlaylistResponse[]> {
 }
 
 // Fetch a list of recent tracks (demo: tracks 1–10)
-export async function getRecentTracks() : Promise<TrackMeta[]> {
-        return api.get<TrackMeta[]>(`/tracks/1`)
-        .then((res) => res.data);
+export const getRecentTracks = async (): Promise<TrackMeta[]> => {
+    const res = await fetch('/plays/recent');
+    return res.json();           // <-- json() might be { items: TrackMeta[] }
 }
 
 // fetch up to 10 of the user's most recently updated playlists
