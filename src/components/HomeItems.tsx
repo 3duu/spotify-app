@@ -99,28 +99,84 @@ export default function HomeItems() {
                 ))}
             </View>
 
+            {/* Playlists Grid */}
+            {/*<Text style={styles.sectionHeader}>Your Playlists</Text>
+            <View style={styles.gridContainer}>
+                {playlists.map(item => (
+                    <TouchableOpacity
+                        key={item.id}
+                        style={styles.card}
+                        onPress={() => navigation.navigate('TrackList', { id: item.id, title: item.title, mode: 'playlist' })}
+                    >
+                        {item.cover ? (
+                            <Image source={{ uri: api.getUri() + item.cover }} style={styles.cardImage} />
+                        ) : (
+                            <View style={styles.placeholder} />
+                        )}
+                        <Text style={styles.cardTitle} numberOfLines={1}>
+                            {item.subtitle}
+                        </Text>
+                    </TouchableOpacity>
+                ))}
+            </View>*/}
+
+            <Text style={smallStyles.sectionHeader}>Your Playlists</Text>
+            <View style={smallStyles.gridContainer}>
+                {Array.from({ length: Math.ceil(playlists.length / 2) }).map((_, rowIdx) => {
+                    const first = playlists[rowIdx * 2];
+                    const second = playlists[rowIdx * 2 + 1];
+                    return (
+                        <View style={smallStyles.row} key={rowIdx}>
+                            {first && (
+                                <TouchableOpacity
+                                    style={smallStyles.gridCard}
+                                    onPress={() =>
+                                        navigation.navigate('TrackList', {
+                                            id: first.id,
+                                            title: first.title,
+                                            mode: 'playlist',
+                                        })
+                                    }
+                                >
+                                    {first.cover ? (
+                                        <Image source={{ uri: api.getUri() + first.cover }} style={smallStyles.gridCardImage} />
+                                    ) : (
+                                        <View style={smallStyles.gridCardPlaceholder} />
+                                    )}
+                                    <Text style={smallStyles.gridCardTitle} numberOfLines={1}>
+                                        {first.subtitle}
+                                    </Text>
+                                </TouchableOpacity>
+                            )}
+                            {second && (
+                                <TouchableOpacity
+                                    style={smallStyles.gridCard}
+                                    onPress={() =>
+                                        navigation.navigate('TrackList', {
+                                            id: second.id,
+                                            title: second.title,
+                                            mode: 'playlist',
+                                        })
+                                    }
+                                >
+                                    {second.cover ? (
+                                        <Image source={{ uri: api.getUri() + second.cover }} style={smallStyles.gridCardImage} />
+                                    ) : (
+                                        <View style={smallStyles.gridCardPlaceholder} />
+                                    )}
+                                    <Text style={smallStyles.gridCardTitle} numberOfLines={1}>
+                                        {second.subtitle}
+                                    </Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                    );
+                })}
+            </View>
+
             {activeTab === 'All' && (
                 <>
-                    {/* Playlists Grid */}
-                    <Text style={styles.sectionHeader}>Your Playlists</Text>
-                    <View style={styles.gridContainer}>
-                        {playlists.map(item => (
-                            <TouchableOpacity
-                                key={item.id}
-                                style={styles.card}
-                                onPress={() => navigation.navigate('TrackList', { id: item.id, title: item.title, mode: 'playlist' })}
-                            >
-                                {item.cover ? (
-                                    <Image source={{ uri: api.getUri() + item.cover }} style={styles.cardImage} />
-                                ) : (
-                                    <View style={styles.placeholder} />
-                                )}
-                                <Text style={styles.cardTitle} numberOfLines={1}>
-                                    {item.subtitle}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
+
 
                     {/* Newsletter Section */}
                     <Text style={styles.sectionHeader}>Chosen for you</Text>
@@ -317,5 +373,59 @@ const styles = StyleSheet.create({
     placeholder: {
 
     }
+});
+
+const smallStyles = StyleSheet.create({
+    // ...other styles...
+    sectionHeader: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginVertical: 16,
+    },
+    gridContainer: {
+        marginHorizontal: 0,
+        marginBottom: 8,
+    },
+    row: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 10,
+    },
+    gridCard: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#222',
+        padding: 8,
+        marginRight: 8,
+        minHeight: 54,
+        maxHeight: 64,
+    },
+    // Last card in the row should not have right margin
+    gridCardLast: {
+        marginRight: 0,
+    },
+    gridCardImage: {
+        width: 48,
+        height: 48,
+        borderRadius: 6,
+        marginRight: 10,
+        backgroundColor: '#444',
+    },
+    gridCardPlaceholder: {
+        width: 48,
+        height: 48,
+        borderRadius: 6,
+        marginRight: 10,
+        backgroundColor: '#333',
+    },
+    gridCardTitle: {
+        color: '#fff',
+        fontSize: 15,
+        fontWeight: 'bold',
+        flex: 1,
+        flexShrink: 1,
+    },
 });
 
