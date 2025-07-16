@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         justifyContent: 'space-between',
     },
-    card: { width: '48%', marginBottom: 16 },
+    card: { width: '48%', marginBottom: 16, borderRadius: 4 },
     cardImage: { width: '100%', aspectRatio: 1 },
     cardTitle: {
         color: '#fff',
@@ -325,6 +325,7 @@ const styles = StyleSheet.create({
     cardMini: {
         width: '48%',
         marginBottom: 16,
+        borderRadius: 4,
     },
     cardImageMini: {
         width: '100%',
@@ -397,6 +398,7 @@ const smallStyles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#222',
+        borderRadius: 4,
         padding: 8,
         marginRight: 8,
         minHeight: 54,
@@ -409,7 +411,7 @@ const smallStyles = StyleSheet.create({
     gridCardImage: {
         width: 48,
         height: 48,
-        borderRadius: 6,
+        borderRadius: 2,
         marginRight: 10,
         backgroundColor: '#444',
     },
