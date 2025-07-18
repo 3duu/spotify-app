@@ -5,7 +5,7 @@ import {
     StyleSheet,
     ScrollView,
     TouchableOpacity,
-    Image, FlatList
+    Image
 } from 'react-native';
 import api, {
     getRecentPlaylists,
@@ -15,7 +15,7 @@ import api, {
     TrackMeta,
     LibraryData,
     getRecentTracks,
-    getLibraryData, Album
+    getLibraryData, Album, RecentItemResponse
 } from '../services/api';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -44,7 +44,7 @@ export default function HomeItems() {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [activeTab, setActiveTab]         = useState('All');
     const [newsletters, setNewsletters] = useState<Newsletter[]>([]);
-    const [playlists, setPlaylists] = useState<PlaylistResponse[]>([]);
+    const [playlists, setPlaylists] = useState<RecentItemResponse[]>([]);
     const [tracks, setTracks] = useState<TrackMeta[]>([]);
     const [library, setLibrary] = useState<LibraryData | null>(null);
     const [newMusicFriday, setNewMusicFriday] = useState<Album[]>([]);
@@ -99,28 +99,6 @@ export default function HomeItems() {
                 ))}
             </View>
 
-            {/* Playlists Grid */}
-            {/*<Text style={styles.sectionHeader}>Your Playlists</Text>
-            <View style={styles.gridContainer}>
-                {playlists.map(item => (
-                    <TouchableOpacity
-                        key={item.id}
-                        style={styles.card}
-                        onPress={() => navigation.navigate('TrackList', { id: item.id, title: item.title, mode: 'playlist' })}
-                    >
-                        {item.cover ? (
-                            <Image source={{ uri: api.getUri() + item.cover }} style={styles.cardImage} />
-                        ) : (
-                            <View style={styles.placeholder} />
-                        )}
-                        <Text style={styles.cardTitle} numberOfLines={1}>
-                            {item.subtitle}
-                        </Text>
-                    </TouchableOpacity>
-                ))}
-            </View>*/}
-
-            <Text style={smallStyles.sectionHeader}>Your Playlists</Text>
             <View style={smallStyles.gridContainer}>
                 {Array.from({ length: Math.ceil(playlists.length / 2) }).map((_, rowIdx) => {
                     const first = playlists[rowIdx * 2];
@@ -176,8 +154,6 @@ export default function HomeItems() {
 
             {activeTab === 'All' && (
                 <>
-
-
                     {/* Newsletter Section */}
                     <Text style={styles.sectionHeader}>Chosen for you</Text>
                     <View style={styles.gridContainer}>

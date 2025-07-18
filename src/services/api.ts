@@ -17,15 +17,6 @@ export async function getNewsletters() : Promise<Newsletter[]> {
         });
 }
 
-export async function getAllPlaylists() : Promise<PlaylistResponse[]> {
-    return api.get<PlaylistResponse[]>('/playlists')
-        .then((res) => res.data)
-        .catch((err) => {
-            console.error('Failed to fetch playlists:', err);
-            return [];
-        });
-}
-
 // Fetch a list of recent tracks (demo: tracks 1–10)
 export const getRecentTracks = async (): Promise<TrackMeta[]> => {
     const res = await fetch('/plays/recent');
@@ -33,9 +24,9 @@ export const getRecentTracks = async (): Promise<TrackMeta[]> => {
 }
 
 // fetch up to 10 of the user's most recently updated playlists
-export function getRecentPlaylists(userId: number) : Promise<PlaylistResponse[]> {
+export function getRecentPlaylists(userId: number) : Promise<RecentItemResponse[]> {
     return api
-        .get<PlaylistResponse[]>(`/users/${userId}/recent-playlists`)
+        .get<RecentItemResponse[]>(`/me/${userId}/recent`)
         .then((res) => res.data);
 }
 
@@ -69,6 +60,15 @@ export interface UserProfile {
 
 export function getCurrentUser() {
     return api.get<UserProfile>("/me").then(res => res.data);
+}
+
+export interface RecentItemResponse {
+    id: number;
+    type: string;
+    title: string;
+    subtitle: string;
+    cover: string;
+    played_at: string;
 }
 
 export interface TrackMeta {
