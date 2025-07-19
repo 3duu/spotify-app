@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import api, {
     getRecentPlaylists,
-    PlaylistResponse,
     Newsletter,
     getNewsletters,
     TrackMeta,
@@ -44,12 +43,9 @@ export default function HomeItems() {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [activeTab, setActiveTab]         = useState('All');
     const [newsletters, setNewsletters] = useState<Newsletter[]>([]);
-    const [playlists, setPlaylists] = useState<RecentItemResponse[]>([]);
+    const [recentPlayed, setRecentPlayed] = useState<RecentItemResponse[]>([]);
     const [tracks, setTracks] = useState<TrackMeta[]>([]);
     const [library, setLibrary] = useState<LibraryData | null>(null);
-    const [newMusicFriday, setNewMusicFriday] = useState<Album[]>([]);
-    const [personalizedReleases, setPersonalizedReleases] = useState<Album[]>([]);
-    const [topNewPicks, setTopNewPicks] = useState<Album[]>([]);
 
     useEffect(() => {
         // just load the newsletters once
@@ -61,7 +57,7 @@ export default function HomeItems() {
     useEffect(() => {
         // Load playlists when the component mounts
         getRecentPlaylists(1) // replace with actual user ID if needed
-            .then(data => setPlaylists(data))
+            .then(data => setRecentPlayed(data))
             .catch(err => console.error('Failed to load playlists:', err));
     }, []);
 
@@ -99,10 +95,11 @@ export default function HomeItems() {
                 ))}
             </View>
 
+            {/* Recent played Section */}
             <View style={smallStyles.gridContainer}>
-                {Array.from({ length: Math.ceil(playlists.length / 2) }).map((_, rowIdx) => {
-                    const first = playlists[rowIdx * 2];
-                    const second = playlists[rowIdx * 2 + 1];
+                {Array.from({ length: Math.ceil(recentPlayed.length / 2) }).map((_, rowIdx) => {
+                    const first = recentPlayed[rowIdx * 2];
+                    const second = recentPlayed[rowIdx * 2 + 1];
                     return (
                         <View style={smallStyles.row} key={rowIdx}>
                             {first && (

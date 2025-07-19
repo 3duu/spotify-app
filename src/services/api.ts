@@ -17,14 +17,18 @@ export async function getNewsletters() : Promise<Newsletter[]> {
         });
 }
 
-// Fetch a list of recent tracks (demo: tracks 1–10)
-export const getRecentTracks = async (): Promise<TrackMeta[]> => {
-    const res = await fetch('/plays/recent');
-    return res.json();           // <-- json() might be { items: TrackMeta[] }
+export async function getRecentTracks() : Promise<TrackMeta[]> {
+
+    return api.get<TrackMeta[]>('/tracks/recent')
+        .then((res) => res.data)
+        .catch((err) => {
+            console.error('Failed to fetch tracks:', err);
+            return [];
+        });
 }
 
 // fetch up to 10 of the user's most recently updated playlists
-export function getRecentPlaylists(userId: number) : Promise<RecentItemResponse[]> {
+export async function getRecentPlaylists(userId: number) : Promise<RecentItemResponse[]> {
     return api
         .get<RecentItemResponse[]>(`/me/${userId}/recent`)
         .then((res) => res.data);
